@@ -1,0 +1,14 @@
+.custom-btn {
+    background-color: #39B8B1 !important;  /* Custom green */
+    color: white !important;               /* White text */
+    border: none !important;               /* Remove borders */
+}
+.custom-btn:hover {
+    background-color:black !important;
+    color: #39B8B1 !important;
+    /* Darker green on hover */
+}
+.the-color {
+    background-color: #39B8B1 !important;  /* Custom green */
+    color: white !important;
+}
