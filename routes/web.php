@@ -72,9 +72,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
-    // Add verification submit route here
-    Route::post('/verification/submit', [VerificationController::class, 'submit'])->name('verification.submit');
 });
 
 Route::get('/institutions-by-state/{stateId?}', [InstitutionController::class, 'getByState'])->name('institutions.by.state');
@@ -100,8 +97,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-as-read');
 });
 
-// Admin verification routes
+// Verification routes
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('/verification/submit', [VerificationController::class, 'submit'])->name('verification.submit');
+    
+    // Admin verification routes
     Route::middleware(['role:admin'])->group(function () {
         Route::patch('/admin/verification/{verificationRequest}/approve', [VerificationController::class, 'approve'])->name('admin.verification.approve');
         Route::patch('/admin/verification/{verificationRequest}/reject', [VerificationController::class, 'reject'])->name('admin.verification.reject');
