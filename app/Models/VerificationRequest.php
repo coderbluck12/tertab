@@ -5,16 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Document extends Model
+class VerificationRequest extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
-        'verification_request_id',
-        'path',
-        'name',
-        'type'
+        'verification_name',
+        'school_email',
+        'institution',
+        'position',
+        'notes',
+        'status',
+        'rejection_reason'
     ];
 
     public function user()
@@ -22,8 +25,8 @@ class Document extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function verificationRequest()
+    public function documents()
     {
-        return $this->belongsTo(VerificationRequest::class);
+        return $this->hasMany(Document::class);
     }
-}
+} 

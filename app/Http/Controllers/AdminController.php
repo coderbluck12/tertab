@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\NotificationMail;
 use App\Models\Reference;
 use App\Models\User;
+use App\Models\VerificationRequest;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -31,11 +32,13 @@ class AdminController extends Controller
             'rejected' => Reference::where('status', 'lecturer completed')->count(),
             'awaiting' => Reference::where('status', 'lecturer rejected')->count(),
             'total' => Reference::count(),
+            'verification_requests' => VerificationRequest::where('status', 'pending')->count(),
         ];
 
         $requests = Reference::with('student')->latest()->get();
+        $verificationRequests = VerificationRequest::with('user')->latest()->get();
 
-        return view('admin.dashboard', compact('adminStats', 'requests'));
+        return view('admin.dashboard', compact('adminStats', 'requests', 'verificationRequests'));
     }
 
     /**
@@ -116,9 +119,25 @@ dd($request);
 
     public function showUser($id)
     {
-        $user = User::with('state', 'institution')->findOrFail($id);
+        $user = User::with([
+            'state', 
+            'institution',
+            'verificationRequest' => function($query) {
+                $query->with('documents');
+            }
+        ])->findOrFail($id);
+        
         $institutions = $user->attended()->with('documents', 'state', 'institution')->get();
-//dd($institutions);
+        
+        // Debug information
+        if ($user->verificationRequest) {
+            \Log::info('Verification Request:', [
+                'id' => $user->verificationRequest->id,
+                'documents_count' => $user->verificationRequest->documents->count(),
+                'documents' => $user->verificationRequest->documents->toArray()
+            ]);
+        }
+        
         return view('admin.user-profile', compact('user', 'institutions'));
     }
 
@@ -160,6 +179,15 @@ dd($request);
         );
 
         return redirect()->route('admin.dashboard')->with('success', 'Student deactivated successfully.');
+    }
+
+    public function verificationRequests()
+    {
+        $verificationRequests = VerificationRequest::with(['user', 'documents'])
+            ->latest()
+            ->paginate(10);
+            
+        return view('admin.verification-requests', compact('verificationRequests'));
     }
 
 }

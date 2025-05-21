@@ -12,6 +12,7 @@ use App\Http\Controllers\ReferenceController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\PlatfromSettingsController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\VerificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -38,6 +39,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(fu
     Route::get('/user/{id}', [AdminController::class, 'showUser'])->name('admin.user.show');
 
     Route::get('/user/status/{id}', [AdminController::class, 'approveUser'])->name('admin.user.approve');
+    Route::get('/verification-requests', [AdminController::class, 'verificationRequests'])->name('admin.verification.requests');
 
 
 
@@ -93,6 +95,16 @@ Route::middleware(['auth'])->group(function () {
     // Notification routes
     Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
     Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-as-read');
+});
+
+Route::post('/verification/submit', [VerificationController::class, 'submit'])->name('verification.submit');
+
+// Admin verification routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::middleware(['role:admin'])->group(function () {
+        Route::patch('/admin/verification/{verificationRequest}/approve', [VerificationController::class, 'approve'])->name('admin.verification.approve');
+        Route::patch('/admin/verification/{verificationRequest}/reject', [VerificationController::class, 'reject'])->name('admin.verification.reject');
+    });
 });
 
 require __DIR__.'/auth.php';

@@ -34,15 +34,14 @@ class InstitutionSeeder extends Seeder
                 return;
             }
 
-            // Get a default state (e.g., the first state in the database)
-            $defaultState = State::first();
-            if (!$defaultState) {
-                Log::error('No state found in the database. Please seed states first.');
-                return;
-            }
-
             foreach ($institutions as $stateData) {
                 foreach ($stateData as $stateName => $institutionsList) {
+                    // Find or create the state
+                    $state = State::firstOrCreate(
+                        ['name' => $stateName],
+                        ['name' => $stateName]
+                    );
+
                     foreach ($institutionsList as $institutionName) {
                         if (!empty($institutionName)) {
                             // Determine ownership type
@@ -54,12 +53,16 @@ class InstitutionSeeder extends Seeder
                             }
 
                             try {
-                                Institution::create([
-                                    'state_id' => $defaultState->id,
-                                    'name' => $institutionName,
-                                    'slug' => Str::slug($institutionName),
-                                    'ownership' => $ownership
-                                ]);
+                                Institution::firstOrCreate(
+                                    [
+                                        'state_id' => $state->id,
+                                        'name' => $institutionName
+                                    ],
+                                    [
+                                        'slug' => Str::slug($institutionName),
+                                        'ownership' => $ownership
+                                    ]
+                                );
                             } catch (\Exception $e) {
                                 Log::error("Failed to create institution {$institutionName}: " . $e->getMessage());
                             }

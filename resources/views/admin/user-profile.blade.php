@@ -58,10 +58,6 @@
                                     <p class="mt-1 text-sm text-gray-600">{{ ucfirst($institution->position) }}</p>
                                 @endcan
                             </div>
-                            <!-- Optional view button -->
-                            {{-- <button class="mt-2 sm:mt-0 text-indigo-600 text-sm font-medium hover:underline">
-                                View
-                            </button> --}}
                         </div>
 
                         <!-- Supporting Documents -->
@@ -95,5 +91,126 @@
                 @endforelse
             </ul>
         </div>
+
+        <!-- Verification Details -->
+        <div class="max-w-4xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:px-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Verification Details</h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">User verification information and documents</p>
+                </div>
+                <div class="border-t border-gray-200">
+                    <dl>
+                        @if($user->verificationRequest)
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Verification Name</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $user->verificationRequest->verification_name }}</dd>
+                            </div>
+                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">School Email</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $user->verificationRequest->school_email }}</dd>
+                            </div>
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Institution</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $user->verificationRequest->institution }}</dd>
+                            </div>
+                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Position/Department</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $user->verificationRequest->position }}</dd>
+                            </div>
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Status</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                    <span class="px-2 py-1 text-sm font-medium rounded
+                                        {{ $user->verificationRequest->status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                           ($user->verificationRequest->status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800') }}">
+                                        {{ ucfirst($user->verificationRequest->status) }}
+                                    </span>
+                                </dd>
+                            </div>
+                            @if($user->verificationRequest->notes)
+                                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-gray-500">Additional Notes</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $user->verificationRequest->notes }}</dd>
+                                </div>
+                            @endif
+                            @if($user->verificationRequest->rejection_reason)
+                                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-gray-500">Rejection Reason</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $user->verificationRequest->rejection_reason }}</dd>
+                                </div>
+                            @endif
+
+                            <!-- Verification Documents -->
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Verification Documents</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                    @if($user->verificationRequest && $user->verificationRequest->documents->isNotEmpty())
+                                        <ul class="space-y-2">
+                                            @foreach($user->verificationRequest->documents as $document)
+                                                <li class="flex items-center gap-2">
+                                                    <a href="{{ asset('storage/' . $document->path) }}" target="_blank"
+                                                       class="text-blue-600 text-sm hover:underline flex items-center">
+                                                        {{ $document->type === 'id_card' ? 'ID Card' : 'Additional Document' }}
+                                                        <svg class="w-5 h-5 ml-1 text-gray-800" fill="none" stroke="currentColor"
+                                                             stroke-width="2" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                  d="M14 4v6h6m-2-2L10 16m4-8H4v14h16V10l-6-6z" />
+                                                        </svg>
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @else
+                                        <p class="text-gray-500">
+                                            @if(!$user->verificationRequest)
+                                                No verification request submitted.
+                                            @else
+                                                No documents uploaded for this verification request.
+                                            @endif
+                                        </p>
+                                    @endif
+                                </dd>
+                            </div>
+
+                            <!-- Verification Actions -->
+                            @if($user->verificationRequest->status === 'pending')
+                                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-gray-500">Actions</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                        <div class="flex space-x-4">
+                                            <form action="{{ route('admin.verification.approve', $user->verificationRequest->id) }}" method="POST" class="inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                                                    Approve Verification
+                                                </button>
+                                            </form>
+                                            <button type="button" 
+                                                    x-data
+                                                    @click="$dispatch('open-reject-modal')" 
+                                                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+                                                Reject Verification
+                                            </button>
+                                        </div>
+                                    </dd>
+                                </div>
+                            @endif
+                        @else
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Status</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                    <span class="px-2 py-1 text-sm font-medium rounded bg-yellow-100 text-yellow-800">
+                                        No verification request
+                                    </span>
+                                </dd>
+                            </div>
+                        @endif
+                    </dl>
+                </div>
+            </div>
+        </div>
     </div>
+
+    @include('admin.reject-modal')
 </x-app-layout>

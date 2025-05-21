@@ -41,46 +41,22 @@ class RegisteredUserController extends Controller
                 'string',
                 'email',
                 'max:255',
-                function ($attribute, $value, $fail) use ($request) {
-                    $role = $request->input('role');
-                    $isLecturer = $role === 'lecturer';
-                    $educationalRegex = '/^[\w.%+-]+@([a-zA-Z0-9-]+\.)*edu(\.[a-zA-Z]{2,})?$/'; // validate for edu
-
-                    // Only apply educational email validation for lecturers
-                    if ($isLecturer && !preg_match($educationalRegex, $value)) {
-                        $fail(__('Lecturers must use an educational email address ending with .edu'));
-                    }
-                },
                 'unique:' . User::class,
             ],
             'role' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:20'],
+            'address' => ['required', 'string', 'max:255'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'documents' =>  'required|array',
-            'documents.*' => 'file|mimes:pdf,doc,docx,jpg,png|max:2048',
-        ], [
-            'email.regex' => 'Lecturers must use an educational email address ending with .edu',
-            'email.*' => 'The email provided does not meet the requirements for your selected role.',
-            'documents.required' => 'Please upload supporting documents.',
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'role' => $request->role,
+            'phone' => $request->phone,
+            'address' => $request->address,
             'password' => Hash::make($request->password),
         ]);
-
-        // Handle document uploads
-        if ($request->hasFile('documents')) {
-            foreach ($request->file('documents') as $document) {
-                $path = $document->store('verification_documents', 'public');
-                Document::create([
-                    'user_id' => $user->id,
-                    'path' => $path,
-                    'type' => 'verification'
-                ]);
-            }
-        }
 
         // Fire Registered event
         event(new Registered($user));
