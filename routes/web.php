@@ -72,6 +72,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // Add verification submit route here
+    Route::post('/verification/submit', [VerificationController::class, 'submit'])->name('verification.submit');
 });
 
 Route::get('/institutions-by-state/{stateId?}', [InstitutionController::class, 'getByState'])->name('institutions.by.state');
@@ -96,8 +99,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
     Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-as-read');
 });
-
-Route::post('/verification/submit', [VerificationController::class, 'submit'])->name('verification.submit');
 
 // Admin verification routes
 Route::middleware(['auth', 'verified'])->group(function () {
