@@ -1,10 +1,6 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
+@section('content')
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
@@ -60,9 +56,7 @@
                 <div class="bg-white shadow-lg rounded-lg p-4 flex items-center border-l-4 border-teal-500">
                     <div class="flex-grow">
                         <p class="text-sm text-teal-600 font-semibold">TOTAL REQUESTS RECEIVED</p>
-{{--                        <h3 class="text-2xl font-bold">{{ array_sum($lecturerStats) }}</h3>--}}
                         <h3 class="text-2xl font-bold">{{ $lecturerStats['pending'] ?? 0 }}</h3>
-
                     </div>
                     <div>
                         <i class="fas fa-file-alt text-teal-500 text-3xl"></i>
@@ -77,18 +71,6 @@
                     </div>
                     <div>
                         <i class="fas fa-circle text-gray-800 text-3xl"></i>
-                    </div>
-                </div>
-
-                <!-- Total Earnings -->
-                <div class="bg-white shadow-lg rounded-lg p-4 flex items-center border-l-4 border-black">
-                    <div class="flex-grow">
-                        <p class="text-sm text-black font-semibold">TOTAL EARNINGS</p>
-                        <h3 class="text-2xl font-bold">₦0.00</h3>
-
-                    </div>
-                    <div>
-                        <i class="fas fa-wallet text-teal-500 text-3xl"></i>
                     </div>
                 </div>
 
@@ -290,7 +272,7 @@
 
         </div>
     </div>
-</x-app-layout>
+@endsection
 
 
 {{--<x-app-layout>--}}

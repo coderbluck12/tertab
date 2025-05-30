@@ -1,10 +1,6 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-2xl text-gray-800 leading-tight">
-            {{ __('User Profile') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
+@section('content')
     <div class="py-8">
         <!-- User Details Card -->
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -198,10 +194,10 @@
                             @endif
                         @else
                             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Status</dt>
+                                <dt class="text-sm font-medium text-gray-500">Verification Status</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                    <span class="px-2 py-1 text-sm font-medium rounded bg-yellow-100 text-yellow-800">
-                                        No verification request
+                                    <span class="px-2 py-1 text-sm font-medium rounded bg-gray-100 text-gray-800">
+                                        No verification request submitted
                                     </span>
                                 </dd>
                             </div>
@@ -213,4 +209,4 @@
     </div>
 
     @include('admin.reject-modal')
-</x-app-layout>
+@endsection

@@ -1,9 +1,6 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Request for Reference') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
+
+@section('content')
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg  flex justify-center ">
@@ -179,7 +176,7 @@
                 lecturerDropdown.innerHTML = '<option value="">Select a Lecturer</option>'; // Reset dropdown
 
                 if (institutionId) {
-                    fetch(`/get-lecturers/${institutionId}`)
+                    fetch(`/tertab/public/get-lecturers/${institutionId}`)
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -198,18 +195,13 @@
                                 });
                             } else {
                                 console.error('Invalid data format received:', data);
-                                lecturerDropdown.innerHTML = '<option value="">Error: Invalid data format</option>';
                             }
                         })
                         .catch(error => {
-                            console.error("Error fetching lecturers:", error);
-                            lecturerDropdown.innerHTML = '<option value="">Error loading lecturers</option>';
+                            console.error('Error fetching lecturers:', error);
                         });
                 }
             });
         });
     </script>
-
-
-
-</x-app-layout>
+@endsection

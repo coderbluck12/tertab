@@ -1,1 +1,3 @@
-<img src="{{ $attributes->get('src') }}" alt="{{ $attributes->get('alt', 'Application Logo') }}" {{ $attributes }}>
+@props(['src', 'alt' => 'Application Logo'])
+
+<img src="{{ $src }}" alt="{{ $alt }}" {{ $attributes }}>

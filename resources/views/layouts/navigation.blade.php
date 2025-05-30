@@ -6,8 +6,8 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex justify-between items-center">
                     <a href="{{ route('dashboard') }}" class="flex justify-between">
-                        <x-application-logo src="{{ asset('images/logoimg.png') }}" alt="Application Logo" class="w-10 h-10 fill-current text-gray-500" />
-                        <x-application-logo src="{{ asset('images/logotext.png') }}" alt="Application Logo" class="h-10 fill-current text-gray-500" />
+                        <x-application-logo :src="asset('images/logoimg.png')" class="w-10 h-10 fill-current text-gray-500" />
+                        <x-application-logo :src="asset('images/logotext.png')" class="h-10 fill-current text-gray-500" />
                     </a>
                 </div>
 
@@ -16,6 +16,12 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+
+                    @can('request-for-reference')
+                        <x-nav-link :href="route('wallet.show')" :active="request()->routeIs('wallet.show')">
+                            {{ __('Wallet') }}
+                        </x-nav-link>
+                    @endcan
 
                     @can('request-for-reference')
                         @if(auth()->check() && auth()->user()->status !== 'pending')
@@ -118,6 +124,12 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            @can('request-for-reference')
+                <x-responsive-nav-link :href="route('wallet.show')" :active="request()->routeIs('wallet.show')">
+                    {{ __('Wallet') }}
+                </x-responsive-nav-link>
+            @endcan
         </div>
 
         <!-- Responsive Settings Options -->

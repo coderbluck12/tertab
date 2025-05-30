@@ -1,10 +1,6 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Reference Request Details (Admin View)') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
+@section('content')
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Main Card -->
@@ -31,7 +27,6 @@
                 <h4 class="text-lg font-semibold text-gray-800 mb-4">Student Details</h4>
                 <p><strong class="font-semibold">Student Name:</strong> {{ $request->student->name }}</p>
                 <p><strong class="font-semibold">Student Email:</strong> {{ $request->student->email }}</p>
-{{--                <p><strong class="font-semibold">Student Institution:</strong> {{ $request->student->attended->name }}</p>--}}
 
                 <div class="mt-4">
                     <h5 class="text-md font-semibold text-gray-800">Uploaded Documents</h5>
@@ -53,7 +48,6 @@
                 <h4 class="text-lg font-semibold text-gray-800 mb-4">Lecturer Details</h4>
                 <p><strong class="font-semibold">Lecturer Name:</strong> {{ $request->lecturer->name }}</p>
                 <p><strong class="font-semibold">Lecturer Email:</strong> {{ $request->lecturer->email }}</p>
-{{--                <p><strong class="font-semibold">Lecturer Institution:</strong> {{ $request->lecturer->attended->name }}</p>--}}
 
                 <div class="mt-4">
                     <h5 class="text-md font-semibold text-gray-800">Uploaded Documents</h5>
@@ -167,7 +161,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
-</x-app-layout>
+@endsection

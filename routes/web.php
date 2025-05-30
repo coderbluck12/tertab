@@ -13,6 +13,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\PlatfromSettingsController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\VerificationController;
+use App\Http\Controllers\WalletController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -61,7 +62,8 @@ Route::get('/lecturer/institution', [InstitutionAttendedController::class, 'inde
 Route::get('/student/dashboard', [StudentController::class, 'index'])->middleware(['auth', 'verified', 'role:student'])->name('student.dashboard');
 
 Route::get('/student/reference', [StudentController::class, 'create'])->middleware(['auth', 'verified'])->name('student.reference');
-Route::get('/student/reference/{id}/edit', [StudentController::class, 'edit'])->middleware(['auth', 'verified'])->name('student.reference.edit');
+Route::get('/student/reference/{id}/edit', [ReferenceController::class, 'edit'])->middleware(['auth', 'verified'])->name('student.reference.edit');
+Route::put('/student/reference/{id}', [ReferenceController::class, 'update'])->middleware(['auth', 'verified'])->name('student.reference.update');
 Route::get('/student/reference/{id}', [StudentController::class, 'show'])->name('student.reference.show');
 Route::get('reference/{id}/confirm_completed', [ReferenceController::class, 'mark_completed'])->name('student.reference.mark_completed');
 
@@ -95,6 +97,11 @@ Route::middleware(['auth'])->group(function () {
     // Notification routes
     Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
     Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-as-read');
+
+    // Wallet routes
+    Route::get('/wallet', [WalletController::class, 'show'])->name('wallet.show');
+    Route::post('/wallet/fund', [WalletController::class, 'initializePayment'])->name('wallet.fund');
+    Route::get('/payment/callback', [WalletController::class, 'handleCallback'])->name('payment.callback');
 });
 
 // Verification routes

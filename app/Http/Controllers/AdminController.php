@@ -90,7 +90,6 @@ dd($request);
                 }]);
             },
             'student' => function ($query) {
-
                 $query->with(['attended', 'documents' => function ($q) {
                     $q->where('type', 'verification');
                 }]);
@@ -98,7 +97,24 @@ dd($request);
             'documents'
         ])->findOrFail($id);
 
-//        dd($request->student->attended, $request->lecturer->attended); // Check if both return data
+        // Add debugging
+        \Log::info('Reference Request Data:', [
+            'id' => $request->id,
+            'reference_type' => $request->reference_type,
+            'request_type' => $request->request_type,
+            'status' => $request->status,
+            'description' => $request->reference_description,
+            'student' => $request->student ? [
+                'id' => $request->student->id,
+                'name' => $request->student->name,
+                'email' => $request->student->email
+            ] : null,
+            'lecturer' => $request->lecturer ? [
+                'id' => $request->lecturer->id,
+                'name' => $request->lecturer->name,
+                'email' => $request->lecturer->email
+            ] : null
+        ]);
 
         return view('admin.show', compact('request'));
     }

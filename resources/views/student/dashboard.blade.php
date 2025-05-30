@@ -1,10 +1,6 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
+@section('content')
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
@@ -20,11 +16,8 @@
                 </script>
             @endif
 
-
-
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-
                 <!-- Pending Requests -->
                 <div class="bg-white shadow-lg rounded-lg p-4 flex items-center border-l-4 border-blue-500">
                     <div class="flex-grow">
@@ -68,11 +61,9 @@
                         <i class="fas fa-file-alt text-teal-500 text-3xl"></i>
                     </div>
                 </div>
-
             </div>
 
             <!-- Alpine.js wrapper -->
-            {{--            <div x-data="{ open: false }">--}}
             <div x-data="{ open: false, init() { console.log('Modal state on load:', this.open); } }">
                 <!-- Button to Open Modal -->
                 {{--                <div class="flex justify-end">--}}
@@ -149,7 +140,6 @@
                     </div>
                 </div>
             </div>
-
 
             <!-- Submitted Requests Table -->
             <div class="bg-white shadow-sm sm:rounded-lg p-6 mt-6">
@@ -336,54 +326,11 @@
                     @empty
                         <p class="text-center text-gray-500">No reference requests yet.</p>
                     @endforelse
-
-
-                    {{--                    @forelse($requests as $request)--}}
-                    {{--                        <div class="border border-gray-200 rounded-lg p-4 shadow-sm bg-white">--}}
-                    {{--                            <div class="flex justify-between items-center mb-2">--}}
-                    {{--                                <h3 class="text-lg font-semibold">{{ $request->lecturer->name }}</h3>--}}
-                    {{--                                <span class="px-2 py-1 text-sm font-medium rounded--}}
-                    {{--                    {{ $request->status == 'pending' ? 'bg-blue-800 text-white' :--}}
-                    {{--                       ($request->status == 'lecturer approved' ? 'bg-green-800  text-white' : 'bg-gray-800  text-white') }}">--}}
-                    {{--                    {{ ucfirst($request->status) }}--}}
-                    {{--                </span>--}}
-                    {{--                            </div>--}}
-                    {{--                            <p class="text-gray-600"><strong>Format:</strong> {{ ucfirst($request->reference_type) }}</p>--}}
-                    {{--                            <p class="text-gray-600"><strong>Type:</strong> {{ ucfirst($request->request_type) }}</p>--}}
-                    {{--                            <p class="text-gray-600"><strong>Description:</strong> {{ $request->reference_description }}</p>--}}
-                    {{--                            <p class="text-gray-500 text-sm"><strong>Date Requested:</strong> {{ $request->created_at->format('M d, Y') }}</p>--}}
-
-                    {{--                            <div class="mt-3 flex space-x-3">--}}
-                    {{--                                <a href="{{ route('student.reference.show', $request->id) }}" class="text-blue-500 hover:underline">View</a>--}}
-                    {{--                                @if(in_array($request->status, ['lecturer completed', 'lecturer email sent']))--}}
-                    {{--    <a href="{{ route('student.reference.mark_completed', $request->id) }}" class="text-gray-800 hover:underline">Confirm Completed</a>--}}
-                    {{--@endif--}}
-
-                    {{--                            @if($request->status == 'pending')--}}
-                    {{--                                    <a href="{{ route('student.reference.edit', $request->id) }}" class="text-green-500 hover:underline">Edit</a>--}}
-                    {{--                                    <a href="" class="text-green-500 hover:underline">Edit</a>--}}
-                    {{--                                    <form action="{{ route('reference.destroy', $request->id) }}" method="POST" class="inline-block">--}}
-                    {{--                                        @csrf--}}
-                    {{--                                        @method('DELETE')--}}
-                    {{--                                        <button type="submit" class="text-red-500 hover:underline"--}}
-                    {{--                                                onclick="return confirm('Are you sure you want to delete this request?')">--}}
-                    {{--                                            Delete--}}
-                    {{--                                        </button>--}}
-                    {{--                                    </form>--}}
-                    {{--                                @endif--}}
-                    {{--                            </div>--}}
-                    {{--                        </div>--}}
-                    {{--                    @empty--}}
-                    {{--                        <p class="text-center text-gray-500">No reference requests yet.</p>--}}
-                    {{--                    @endforelse--}}
                 </div>
                 <div class="mt-6">
                     {{ $requests->links() }}
                 </div>
-
             </div>
-
-
         </div>
     </div>
-</x-app-layout>
+@endsection

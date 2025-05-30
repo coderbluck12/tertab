@@ -20,6 +20,9 @@
         <!-- Include Alpine.js -->
         <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js" defer></script>
 
+        <!-- reCAPTCHA -->
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
@@ -38,7 +41,7 @@
 
             <!-- Page Content -->
             <main>
-                {{ $slot }}
+                @yield('content')
             </main>
         </div>
 

@@ -1,10 +1,6 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Add Institution') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
+@section('content')
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white shadow-sm sm:rounded-lg p-6">
@@ -35,13 +31,6 @@
                                 <x-input-error :messages="$errors->get('institution')" class="mt-2" />
                             </div>
                         </div>
-
-
-                        <!-- Institution Name -->
-                        {{--                        <div>--}}
-                        {{--                            <label class="block text-sm font-medium text-gray-700">Institution Name</label>--}}
-                        {{--                            <input type="text" name="name" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500" required>--}}
-                        {{--                        </div>--}}
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <!-- Institution Type -->
@@ -114,10 +103,7 @@
                                     </select>
                                 @endcan
                             </div>
-
                         </div>
-
-
 
                         <!-- Duration -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -141,9 +127,6 @@
                         <div>
                             <x-primary-button>Add Institution</x-primary-button>
                         </div>
-                        {{--                        <div>--}}
-                        {{--                            <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700">Submit</button>--}}
-                        {{--                        </div>--}}
                     </form>
                 </div>
             </div>
@@ -176,4 +159,4 @@
             });
         });
     </script>
-</x-app-layout>
+@endsection
