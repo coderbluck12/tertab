@@ -63,7 +63,7 @@ class ReferenceController extends Controller
         if (!$settings) {
             return back()->with('error', 'Platform settings not configured. Please contact support.');
         }
-        $price = $settings->reference_request_price;
+        $price = $request->request_type === 'express' ? $settings->express_reference_request_price : $settings->reference_request_price;
 
         // Check if user has sufficient funds
         $wallet = auth()->user()->wallet;

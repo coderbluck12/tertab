@@ -23,6 +23,12 @@
                         </x-nav-link>
                     @endcan
 
+                    @can('provide-a-reference')
+                        <x-nav-link :href="route('wallet.show')" :active="request()->routeIs('wallet.show')">
+                            {{ __('Wallet') }}
+                        </x-nav-link>
+                    @endcan
+
                     @can('request-for-reference')
                         @if(auth()->check() && auth()->user()->status !== 'pending')
                             <x-nav-link :href="route('student.reference')" :active="request()->routeIs('student.reference')">

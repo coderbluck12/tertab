@@ -20,79 +20,54 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', DashboardController::class)->middleware(['auth', 'verified'])->name('dashboard');
-Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
-    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-
+// Verification routes - These should be accessible without verification
+Route::middleware(['auth'])->group(function () {
+    Route::get('/verification/required', [VerificationController::class, 'showVerificationRequired'])->name('verification.required');
+    Route::post('/verification/submit', [VerificationController::class, 'submit'])->name('verification.submit');
 });
 
-Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(function () {
-    Route::get('/reference/{id}', [AdminController::class, 'show'])->name('admin.reference.show');
-//    Route::resource('/admin', AdminController::class)->middleware(['auth', 'verified', 'role:admin']);
-    Route::patch('reference/{id}/approve', [ReferenceController::class, 'approve'])->name('admin.reference.approve');
-    Route::patch('reference/{id}/reject', [ReferenceController::class, 'reject'])->name('admin.reference.reject');
-    Route::post('reference/{id}/upload', [ReferenceController::class, 'uploadDocument'])->name('admin.reference.upload');
-    Route::get('/settings', [PlatfromSettingsController::class, 'index'])->name('admin.platform.settings');
-    Route::patch('/settings', [PlatfromSettingsController::class, 'update'])->name('admin.platform.settings.update');
-
-    Route::get('/students', [AdminController::class, 'students'])->name('admin.students');
-    Route::get('/lecturers', [AdminController::class, 'lecturers'])->name('admin.lecturers');
-    Route::get('/user/{id}', [AdminController::class, 'showUser'])->name('admin.user.show');
-
-    Route::get('/user/status/{id}', [AdminController::class, 'approveUser'])->name('admin.user.approve');
-    Route::get('/verification-requests', [AdminController::class, 'verificationRequests'])->name('admin.verification.requests');
-
-
-
-});
-
-
-Route::get('/lecturer/dashboard', [LecturerController::class, 'index'])->middleware(['auth', 'verified', 'role:lecturer'])->name('lecturer.dashboard');
-
-Route::resource('/lecturer', LecturerController::class)->middleware(['auth', 'verified']);
-Route::resource('/reference', ReferenceController::class)->middleware(['auth', 'verified']);
-Route::patch('/lecturer/reference/{id}/approve', [ReferenceController::class, 'approve'])->name('lecturer.reference.approve');
-Route::patch('/lecturer/reference/{id}/reject', [ReferenceController::class, 'reject'])->name('lecturer.reference.reject');
-Route::patch('reference/{id}/confirm_email_sent', [ReferenceController::class, 'confirm_email_sent'])->name('lecturer.reference.confirm_email_sent');
-Route::patch('reference/{id}/confirm_completed', [ReferenceController::class, 'confirm_completed'])->name('lecturer.reference.confirm_completed');
-Route::get('/lecturer/reference/{id}', [LecturerController::class, 'show'])->name('lecturer.reference.show');
-Route::post('/lecturer/reference/{id}/upload', [ReferenceController::class, 'uploadDocument'])->name('lecturer.reference.upload');
-Route::get('/lecturer/institution', [InstitutionAttendedController::class, 'index'])->name('lecturer.institution.index');
-
-Route::get('/student/dashboard', [StudentController::class, 'index'])->middleware(['auth', 'verified', 'role:student'])->name('student.dashboard');
-
-Route::get('/student/reference', [StudentController::class, 'create'])->middleware(['auth', 'verified'])->name('student.reference');
-Route::get('/student/reference/{id}/edit', [ReferenceController::class, 'edit'])->middleware(['auth', 'verified'])->name('student.reference.edit');
-Route::put('/student/reference/{id}', [ReferenceController::class, 'update'])->middleware(['auth', 'verified'])->name('student.reference.update');
-Route::get('/student/reference/{id}', [StudentController::class, 'show'])->name('student.reference.show');
-Route::get('reference/{id}/confirm_completed', [ReferenceController::class, 'mark_completed'])->name('student.reference.mark_completed');
-
-Route::get('/institution/attended', [InstitutionAttendedController::class, 'index'])->name('institution.attended.show');
-Route::post('/institution/attended', [InstitutionAttendedController::class, 'store'])->name('institution.attended.store');
-
-Route::middleware('auth')->group(function () {
+// All other routes should require verification
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    
+    // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
 
-Route::get('/institutions-by-state/{stateId?}', [InstitutionController::class, 'getByState'])->name('institutions.by.state');
-Route::get('/reference-lecturers-by-state/{stateId}', [LecturerController::class, 'getLecturersForReferenceByState']);
-Route::get('/get-lecturers/{institution_id}', [LecturerController::class, 'getLecturersByInstitution']);
+    // Student routes
+    Route::get('/student/dashboard', [StudentController::class, 'index'])->middleware(['role:student'])->name('student.dashboard');
+    Route::get('/student/reference', [StudentController::class, 'reference'])->name('student.reference');
+    Route::post('/reference', [ReferenceController::class, 'store'])->name('reference.store');
+    Route::get('/student/reference/{id}/edit', [ReferenceController::class, 'edit'])->name('student.reference.edit');
+    Route::put('/student/reference/{id}', [ReferenceController::class, 'update'])->name('student.reference.update');
+    Route::get('/student/reference/{id}', [StudentController::class, 'show'])->name('student.reference.show');
+    Route::get('reference/{id}/confirm_completed', [ReferenceController::class, 'mark_completed'])->name('student.reference.mark_completed');
 
+    // Lecturer routes
+    Route::get('/lecturer/dashboard', [LecturerController::class, 'index'])->middleware(['role:lecturer'])->name('lecturer.dashboard');
+    Route::resource('/lecturer', LecturerController::class);
+    Route::resource('/reference', ReferenceController::class);
+    Route::patch('/lecturer/reference/{id}/approve', [ReferenceController::class, 'approve'])->name('lecturer.reference.approve');
+    Route::patch('/lecturer/reference/{id}/reject', [ReferenceController::class, 'reject'])->name('lecturer.reference.reject');
+    Route::patch('reference/{id}/confirm_email_sent', [ReferenceController::class, 'confirm_email_sent'])->name('lecturer.reference.confirm_email_sent');
+    Route::patch('reference/{id}/confirm_completed', [ReferenceController::class, 'confirm_completed'])->name('lecturer.reference.confirm_completed');
+    Route::get('/lecturer/reference/{id}', [LecturerController::class, 'show'])->name('lecturer.reference.show');
+    Route::post('/lecturer/reference/{id}/upload', [ReferenceController::class, 'uploadDocument'])->name('lecturer.reference.upload');
+    Route::get('/lecturer/institution', [InstitutionAttendedController::class, 'index'])->name('lecturer.institution.index');
 
-//Route::post('/disputes', [DisputeController::class, 'store'])->name('disputes.store'); // Create dispute
-//Route::get('/disputes/{dispute}', [DisputeController::class, 'show'])->name('disputes.show'); // View dispute
-//Route::post('/disputes/{dispute}/messages', [DisputeMessageController::class, 'store'])->name('disputes.store'); // Send message
-Route::put('/disputes/{dispute}/resolve', [DisputeController::class, 'resolve'])->name('disputes.resolve'); // Resolve dispute
-Route::put('/disputes/{dispute}/open', [DisputeController::class, 'open'])->name('disputes.open'); // Resolve dispute
+    // Institution routes
+    Route::get('/institution/attended', [InstitutionAttendedController::class, 'show'])->name('institution.attended.show');
+    Route::post('/institution/attended', [InstitutionAttendedController::class, 'store'])->name('institution.attended.store');
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/disputes', [DisputeController::class, 'index'])->name('disputes.index'); // List disputes
-    Route::get('/disputes/create/{reference_id}', [DisputeController::class, 'create'])->name('disputes.create'); // Create dispute
-    Route::post('/disputes', [DisputeController::class, 'store'])->name('disputes.store'); // Store dispute
-    Route::get('/disputes/{dispute}', [DisputeController::class, 'show'])->name('disputes.show'); // Show dispute details
-    Route::post('/disputes/{dispute}/messages', [DisputeMessageController::class, 'store'])->name('disputes.messages.send'); // Send message
+    // Dispute routes
+    Route::get('/disputes', [DisputeController::class, 'index'])->name('disputes.index');
+    Route::get('/disputes/create/{reference_id}', [DisputeController::class, 'create'])->name('disputes.create');
+    Route::post('/disputes', [DisputeController::class, 'store'])->name('disputes.store');
+    Route::get('/disputes/{dispute}', [DisputeController::class, 'show'])->name('disputes.show');
+    Route::post('/disputes/{dispute}/messages', [DisputeMessageController::class, 'store'])->name('disputes.messages.send');
+    Route::put('/disputes/{dispute}/resolve', [DisputeController::class, 'resolve'])->name('disputes.resolve');
+    Route::put('/disputes/{dispute}/open', [DisputeController::class, 'open'])->name('disputes.open');
 
     // Notification routes
     Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
@@ -104,15 +79,27 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/payment/callback', [WalletController::class, 'handleCallback'])->name('payment.callback');
 });
 
-// Verification routes
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::post('/verification/submit', [VerificationController::class, 'submit'])->name('verification.submit');
-    
-    // Admin verification routes
-    Route::middleware(['role:admin'])->group(function () {
-        Route::patch('/admin/verification/{verificationRequest}/approve', [VerificationController::class, 'approve'])->name('admin.verification.approve');
-        Route::patch('/admin/verification/{verificationRequest}/reject', [VerificationController::class, 'reject'])->name('admin.verification.reject');
-    });
+// Admin routes - These require both verification and admin role
+Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/reference/{id}', [AdminController::class, 'show'])->name('admin.reference.show');
+    Route::patch('reference/{id}/approve', [ReferenceController::class, 'approve'])->name('admin.reference.approve');
+    Route::patch('reference/{id}/reject', [ReferenceController::class, 'reject'])->name('admin.reference.reject');
+    Route::post('reference/{id}/upload', [ReferenceController::class, 'uploadDocument'])->name('admin.reference.upload');
+    Route::get('/settings', [PlatfromSettingsController::class, 'index'])->name('admin.platform.settings');
+    Route::patch('/settings', [PlatfromSettingsController::class, 'update'])->name('admin.platform.settings.update');
+    Route::get('/students', [AdminController::class, 'students'])->name('admin.students');
+    Route::get('/lecturers', [AdminController::class, 'lecturers'])->name('admin.lecturers');
+    Route::get('/user/{id}', [AdminController::class, 'showUser'])->name('admin.user.show');
+    Route::get('/user/status/{id}', [AdminController::class, 'approveUser'])->name('admin.user.approve');
+    Route::get('/verification-requests', [AdminController::class, 'verificationRequests'])->name('admin.verification.requests');
+    Route::patch('/verification/{verificationRequest}/approve', [VerificationController::class, 'approve'])->name('admin.verification.approve');
+    Route::patch('/verification/{verificationRequest}/reject', [VerificationController::class, 'reject'])->name('admin.verification.reject');
 });
+
+// API routes for dynamic data
+Route::get('/institutions-by-state/{stateId?}', [InstitutionController::class, 'getByState'])->name('institutions.by.state');
+Route::get('/reference-lecturers-by-state/{stateId}', [LecturerController::class, 'getLecturersForReferenceByState']);
+Route::get('/get-lecturers/{institution_id}', [LecturerController::class, 'getLecturersByInstitution']);
 
 require __DIR__.'/auth.php';

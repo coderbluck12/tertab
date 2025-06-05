@@ -25,8 +25,6 @@ class InstitutionAttendedController extends Controller
 
     public function store(Request $request)
     {
-
-//            dd($request->all());
         $data = $request->validate([
             'state' => 'required',
             'institution' => 'required',
@@ -34,7 +32,7 @@ class InstitutionAttendedController extends Controller
             'field_of_study' => 'nullable|string',
             'position' => 'nullable|string',
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
             'documents.*' => 'file|mimes:pdf,jpg,png|max:2048'
         ]);
 
@@ -45,8 +43,8 @@ class InstitutionAttendedController extends Controller
             'type' => $request->type,
             'field_of_study' => $request->field_of_study,
             'position' => $request->position,
-            'start_date' => $request->start_date ?? '',
-            'end_date' => $request->end_date ?? '',
+            'start_date' => $request->start_date,
+            'end_date' => $request->filled('end_date') ? $request->end_date : null,
         ]);
 
         if ($request->hasFile('documents')) {
@@ -63,6 +61,13 @@ class InstitutionAttendedController extends Controller
         }
 
         return redirect()->route('institution.attended.show')->with('success', 'Institution added successfully!');
+    }
 
+    public function show()
+    {
+        $institutions = auth()->user()->attended()->with('documents', 'state', 'institution')->get();
+        $settings = PlatformSetting::first();
+        $states = State::orderBy('name')->get();
+        return view('institution_attended.index', compact('institutions', 'settings', 'states'));
     }
 }

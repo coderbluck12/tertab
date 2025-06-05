@@ -10,7 +10,10 @@ class PlatfromSettingsController extends Controller
     public function index()
     {
         // Retrieve the platform settings, if none exists, create default settings
-        $settings = PlatformSetting::first() ?? PlatformSetting::create(['reference_request_price' => 0.00]);
+        $settings = PlatformSetting::first() ?? PlatformSetting::create([
+            'reference_request_price' => 0.00,
+            'express_reference_request_price' => 0.00
+        ]);
 
         return view('admin.settings', compact('settings'));
     }
@@ -20,15 +23,19 @@ class PlatfromSettingsController extends Controller
         // Validate the incoming request
         $request->validate([
             'reference_request_price' => 'required|numeric|min:0',
+            'express_reference_request_price' => 'required|numeric|min:0',
         ]);
 
-        $settings = PlatformSetting::first() ?? PlatformSetting::create(['reference_request_price' => 0.00]);
+        $settings = PlatformSetting::first() ?? PlatformSetting::create([
+            'reference_request_price' => 0.00,
+            'express_reference_request_price' => 0.00
+        ]);
 
         $settings->update([
             'reference_request_price' => $request->input('reference_request_price'),
+            'express_reference_request_price' => $request->input('express_reference_request_price'),
         ]);
 
-//        return view('admin.settings', compact('request'))->with('success', 'Settings updated successfully.');
         return redirect()->route('admin.platform.settings')->with('success', 'Settings updated successfully.');
     }
 }

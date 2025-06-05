@@ -11,74 +11,39 @@ use Illuminate\Support\Facades\Storage;
 
 class VerificationController extends Controller
 {
+    public function showVerificationRequired()
+    {
+        return view('verification.required');
+    }
+
     public function submit(Request $request)
     {
-        $request->validate([
-            'verification_name' => ['required', 'string', 'max:255'],
-            'school_email' => ['required', 'email', 'max:255'],
-            'institution' => ['required', 'string', 'max:255'],
-            'position' => ['required', 'string', 'max:255'],
-            'id_card' => ['required', 'file', 'mimes:jpeg,png,jpg,pdf', 'max:2048'],
-            'additional_documents.*' => ['nullable', 'file', 'mimes:jpeg,png,jpg,pdf', 'max:2048'],
-            'notes' => ['nullable', 'string', 'max:1000'],
-        ]);
-
         try {
+            $request->validate([
+                'document_type' => 'required|in:national_id,drivers_license,passport',
+                'id_document' => 'required|file|mimes:jpeg,png,jpg,pdf|max:2048'
+            ]);
+
+            $user = auth()->user();
+
+            // Store the document
+            $path = $request->file('id_document')->store('verification_documents', 'public');
+
             // Create verification request
             $verificationRequest = VerificationRequest::create([
-                'user_id' => Auth::id(),
-                'verification_name' => $request->verification_name,
-                'school_email' => $request->school_email,
-                'institution' => $request->institution,
-                'position' => $request->position,
-                'notes' => $request->notes,
+                'user_id' => $user->id,
+                'document_type' => $request->document_type,
+                'document_path' => $path,
                 'status' => 'pending'
             ]);
 
-            // Store ID card
-            $idCardPath = $request->file('id_card')->store('verification/id_cards', 'public');
-            $idCardDocument = Document::create([
-                'user_id' => Auth::id(),
-                'verification_request_id' => $verificationRequest->id,
-                'path' => $idCardPath,
-                'name' => 'ID Card',
-                'type' => 'id_card'
-            ]);
+            // Update user status
+            $user->update(['status' => 'pending']);
 
-            \Log::info('ID Card Document Created:', [
-                'id' => $idCardDocument->id,
-                'path' => $idCardPath,
-                'verification_request_id' => $verificationRequest->id
-            ]);
-
-            // Store additional documents if any
-            if ($request->hasFile('additional_documents')) {
-                foreach ($request->file('additional_documents') as $document) {
-                    $path = $document->store('verification/additional_documents', 'public');
-                    $additionalDocument = Document::create([
-                        'user_id' => Auth::id(),
-                        'verification_request_id' => $verificationRequest->id,
-                        'path' => $path,
-                        'name' => 'Additional Document',
-                        'type' => 'additional_document'
-                    ]);
-
-                    \Log::info('Additional Document Created:', [
-                        'id' => $additionalDocument->id,
-                        'path' => $path,
-                        'verification_request_id' => $verificationRequest->id
-                    ]);
-                }
-            }
-
-            return redirect()->route('dashboard')->with('status', 'Verification request submitted successfully. We will review your documents and get back to you soon.');
+            return redirect()->route('verification.required')->with('success', 'Verification request submitted successfully. We will review your documents shortly.');
         } catch (\Exception $e) {
-            \Log::error('Verification Request Error:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            
-            return redirect()->back()->with('error', 'There was an error submitting your verification request. Please try again.');
+            \Log::error('Verification submission error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to submit verification request. Please try again.');
         }
     }
 

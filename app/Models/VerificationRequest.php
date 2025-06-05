@@ -11,11 +11,8 @@ class VerificationRequest extends Model
 
     protected $fillable = [
         'user_id',
-        'verification_name',
-        'school_email',
-        'institution',
-        'position',
-        'notes',
+        'document_type',
+        'document_path',
         'status',
         'rejection_reason'
     ];

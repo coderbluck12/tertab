@@ -11,5 +11,6 @@ class PlatformSetting extends Model
 
     protected $fillable = [
         'reference_request_price',
+        'express_reference_request_price',
     ];
 }

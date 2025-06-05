@@ -11,6 +11,11 @@ class InstitutionAttended extends Model
 
     protected $fillable = ['user_id', 'state_id', 'institution_id', 'type', 'field_of_study', 'position', 'start_date', 'end_date'];
 
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date' => 'date',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

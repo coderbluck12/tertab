@@ -124,6 +124,25 @@ class StudentController extends Controller
         return view('student.show', compact('request', 'documents', 'reference_documents'));
     }
 
+    public function reference()
+    {
+        // Get the institutions the student has attended
+        $studentInstitutions = InstitutionAttended::where('user_id', Auth::id())
+            ->with(['institution', 'state'])
+            ->get();
+
+        // Get lecturers who belong to those institutions
+        $lecturers = User::where('role', 'lecturer')
+            ->whereHas('attended', function ($query) use ($studentInstitutions) {
+                $query->whereIn('institution_id', $studentInstitutions->pluck('institution_id'));
+            })
+            ->with('attended.institution', 'attended.state')
+            ->get();
+
+        $settings = PlatformSetting::first();
+
+        return view('student.reference', compact('studentInstitutions', 'lecturers', 'settings'));
+    }
 
     /**
      * Show the form for editing the specified resource.

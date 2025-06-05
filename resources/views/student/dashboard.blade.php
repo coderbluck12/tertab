@@ -177,7 +177,7 @@
                                         <h3 class="text-base font-semibold leading-6 text-gray-900">Verify Your Identity</h3>
                                         <div class="mt-2">
                                             <p class="text-sm text-gray-500">
-                                                Please provide the following information to verify your account.
+                                                Please upload a valid government-issued ID to verify your account.
                                             </p>
                                         </div>
                                     </div>
@@ -186,53 +186,24 @@
                                 <form method="POST" action="{{ route('verification.submit') }}" enctype="multipart/form-data" class="mt-5 sm:mt-6">
                                     @csrf
                                     
-                                    <!-- Full Name -->
+                                    <!-- Document Type -->
                                     <div class="mb-4">
-                                        <x-input-label for="verification_name" :value="__('Full Name')" />
-                                        <x-text-input id="verification_name" class="block mt-1 w-full" type="text" name="verification_name" required />
-                                        <x-input-error :messages="$errors->get('verification_name')" class="mt-2" />
+                                        <x-input-label for="document_type" :value="__('Document Type')" />
+                                        <select id="document_type" name="document_type" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                            <option value="">Select Document Type</option>
+                                            <option value="national_id">National ID Card</option>
+                                            <option value="drivers_license">Driver's License</option>
+                                            <option value="passport">Passport</option>
+                                        </select>
+                                        <x-input-error :messages="$errors->get('document_type')" class="mt-2" />
                                     </div>
 
-                                    <!-- School Email -->
+                                    <!-- ID Document -->
                                     <div class="mb-4">
-                                        <x-input-label for="school_email" :value="__('School Email')" />
-                                        <x-text-input id="school_email" class="block mt-1 w-full" type="email" name="school_email" required />
-                                        <x-input-error :messages="$errors->get('school_email')" class="mt-2" />
-                                    </div>
-
-                                    <!-- Institution -->
-                                    <div class="mb-4">
-                                        <x-input-label for="institution" :value="__('Institution')" />
-                                        <x-text-input id="institution" class="block mt-1 w-full" type="text" name="institution" required />
-                                        <x-input-error :messages="$errors->get('institution')" class="mt-2" />
-                                    </div>
-
-                                    <!-- Position/Department -->
-                                    <div class="mb-4">
-                                        <x-input-label for="position" :value="__('Position/Department')" />
-                                        <x-text-input id="position" class="block mt-1 w-full" type="text" name="position" required />
-                                        <x-input-error :messages="$errors->get('position')" class="mt-2" />
-                                    </div>
-
-                                    <!-- ID Card -->
-                                    <div class="mb-4">
-                                        <x-input-label for="id_card" :value="__('ID Card')" />
-                                        <input id="id_card" type="file" name="id_card" class="block mt-1 w-full" accept="image/*,.pdf" required />
-                                        <x-input-error :messages="$errors->get('id_card')" class="mt-2" />
-                                    </div>
-
-                                    <!-- Additional Documents -->
-                                    <div class="mb-4">
-                                        <x-input-label for="additional_documents" :value="__('Additional Documents (Optional)')" />
-                                        <input id="additional_documents" type="file" name="additional_documents[]" class="block mt-1 w-full" accept="image/*,.pdf" multiple />
-                                        <x-input-error :messages="$errors->get('additional_documents')" class="mt-2" />
-                                    </div>
-
-                                    <!-- Notes -->
-                                    <div class="mb-4">
-                                        <x-input-label for="notes" :value="__('Additional Notes (Optional)')" />
-                                        <textarea id="notes" name="notes" class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="3"></textarea>
-                                        <x-input-error :messages="$errors->get('notes')" class="mt-2" />
+                                        <x-input-label for="id_document" :value="__('Upload Document')" />
+                                        <input id="id_document" type="file" name="id_document" class="block mt-1 w-full" accept="image/*,.pdf" required />
+                                        <p class="mt-1 text-sm text-gray-500">Upload a clear image or PDF of your document. Maximum file size: 2MB</p>
+                                        <x-input-error :messages="$errors->get('id_document')" class="mt-2" />
                                     </div>
 
                                     <div class="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">

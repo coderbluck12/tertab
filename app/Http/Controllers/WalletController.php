@@ -31,6 +31,11 @@ class WalletController extends Controller
 
     public function initializePayment(Request $request)
     {
+        // Only allow students to fund their wallet
+        if (auth()->user()->can('provide-a-reference')) {
+            return back()->with('error', 'Lecturers cannot fund their wallet. Your balance increases automatically from reference requests.');
+        }
+
         $request->validate([
             'amount' => 'required|numeric|min:100'
         ]);
@@ -51,6 +56,11 @@ class WalletController extends Controller
 
     public function handleCallback(Request $request)
     {
+        // Only allow students to fund their wallet
+        if (auth()->user()->can('provide-a-reference')) {
+            return redirect()->route('wallet.show')->with('error', 'Lecturers cannot fund their wallet.');
+        }
+
         $reference = $request->reference;
         $response = $this->paystackService->verifyTransaction($reference);
 

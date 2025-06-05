@@ -23,6 +23,7 @@
                                 ₦{{ number_format($settings->reference_request_price, 2) }}
                             </p>
                             <input hidden id="originalPrice" type="text" value="{{ $settings->reference_request_price }}">
+                            <input hidden id="expressPrice" type="text" value="{{ $settings->express_reference_request_price }}">
                         </div>
 
                         <!-- Request Type -->
@@ -124,6 +125,7 @@
 
             // Store original price for recalculation
             const originalPrice = parseInt(priceValue.value);
+            const expressPrice = parseInt(document.getElementById('expressPrice').value);
 
             // Toggle email input and document info based on reference type selection
             referenceTypeDropdown.addEventListener("change", function () {
@@ -155,9 +157,8 @@
             requestTypeDropdown.addEventListener("change", function () {
                 if (this.value === "express") {
                     expressNotification.classList.remove("hidden");
-                    // Update the price display to double the original price
-                    let newPrice = originalPrice * 2;
-                    priceDisplay.textContent = '₦' + newPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    // Update the price display to show express price
+                    priceDisplay.textContent = '₦' + expressPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 } else {
                     expressNotification.classList.add("hidden");
                     // Reset the price display to the original price
@@ -176,7 +177,7 @@
                 lecturerDropdown.innerHTML = '<option value="">Select a Lecturer</option>'; // Reset dropdown
 
                 if (institutionId) {
-                    fetch(`/get-lecturers/${institutionId}`)
+                    fetch(`/tertab/public/get-lecturers/${institutionId}`)
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error(`HTTP error! status: ${response.status}`);

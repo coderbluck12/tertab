@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('platform_settings', function (Blueprint $table) {
-            $table->id();
-            $table->decimal('reference_request_price', 8, 2)->default(0.00);
-            $table->decimal('express_reference_request_price', 8, 2)->default(0.00);
-            $table->timestamps();
+        Schema::table('platform_settings', function (Blueprint $table) {
+            $table->decimal('express_reference_request_price', 8, 2)->default(0.00)->after('reference_request_price');
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('platform_settings');
+        Schema::table('platform_settings', function (Blueprint $table) {
+            $table->dropColumn('express_reference_request_price');
+        });
     }
-};
+}; 
