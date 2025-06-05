@@ -29,7 +29,7 @@
                                 Request for Reference
                             </x-nav-link>
                             <x-nav-link :href="route('institution.attended.show')" :active="request()->routeIs('institution.attended.show')">
-                                Add Institution Attended
+                                Add Affliated Institutions
                             </x-nav-link>
                         @endif
                     @endcan
@@ -43,7 +43,7 @@
 {{--                        </x-nav-link>--}}
                         @if(auth()->check() && auth()->user()->status !== 'pending')
                             <x-nav-link :href="route('institution.attended.show')" :active="request()->routeIs('institution.attended.show')">
-                                Add Institution Teaching At
+                                Add Affliated Institutions
                             </x-nav-link>
                         @endif
                     @endcan
