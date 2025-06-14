@@ -11,17 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('wallets', function (Blueprint $table) {
-            if (!Schema::hasColumn('wallets', 'user_id')) {
-                $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            }
-            if (!Schema::hasColumn('wallets', 'balance')) {
-                $table->decimal('balance', 10, 2)->default(0.00);
-            }
-            if (!Schema::hasColumn('wallets', 'currency')) {
-                $table->string('currency', 3)->default('NGN');
-            }
-        });
+        if (Schema::hasTable('wallets')) {
+            Schema::table('wallets', function (Blueprint $table) {
+                if (!Schema::hasColumn('wallets', 'user_id')) {
+                    $table->foreignId('user_id')->constrained()->onDelete('cascade');
+                }
+                if (!Schema::hasColumn('wallets', 'balance')) {
+                    $table->decimal('balance', 10, 2)->default(0.00);
+                }
+                if (!Schema::hasColumn('wallets', 'currency')) {
+                    $table->string('currency', 3)->default('NGN');
+                }
+            });
+        }
     }
 
     /**

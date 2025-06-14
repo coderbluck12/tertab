@@ -59,7 +59,7 @@
                         <!-- Supporting Documents -->
                         @if($institution->documents->isNotEmpty())
                             <div class="mt-4">
-                                <p class="text-sm font-semibold text-gray-700">Supporting Documents:</p>
+                                <p class="text-sm font-semibold text-gray-700">Proof of Attendance/Employment:</p>
                                 <ul class="mt-2 space-y-1">
                                     @foreach($institution->documents as $document)
                                         <li class="flex items-center gap-2">
@@ -77,7 +77,7 @@
                                 </ul>
                             </div>
                         @else
-                            <p class="text-sm text-gray-500 mt-4">No supporting documents uploaded.</p>
+                            <p class="text-sm text-gray-500 mt-4">No proof uploaded.</p>
                         @endif
                     </li>
                 @empty
@@ -99,22 +99,24 @@
                     <dl>
                         @if($user->verificationRequest)
                             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Verification Name</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $user->verificationRequest->verification_name }}</dd>
+                                <dt class="text-sm font-medium text-gray-500">ID Card Type</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                    @switch($user->verificationRequest->document_type)
+                                        @case('national_id')
+                                            National ID Card
+                                            @break
+                                        @case('passport')
+                                            Passport
+                                            @break
+                                        @case('drivers_license')
+                                            Driver's License
+                                            @break
+                                        @default
+                                            {{ ucfirst($user->verificationRequest->document_type) }}
+                                    @endswitch
+                                </dd>
                             </div>
                             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">School Email</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $user->verificationRequest->school_email }}</dd>
-                            </div>
-                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Institution</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $user->verificationRequest->institution }}</dd>
-                            </div>
-                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Position/Department</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $user->verificationRequest->position }}</dd>
-                            </div>
-                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Status</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                                     <span class="px-2 py-1 text-sm font-medium rounded
@@ -125,7 +127,7 @@
                                 </dd>
                             </div>
                             @if($user->verificationRequest->notes)
-                                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                     <dt class="text-sm font-medium text-gray-500">Additional Notes</dt>
                                     <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $user->verificationRequest->notes }}</dd>
                                 </div>
@@ -139,32 +141,20 @@
 
                             <!-- Verification Documents -->
                             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Verification Documents</dt>
+                                <dt class="text-sm font-medium text-gray-500">ID Card Document</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                    @if($user->verificationRequest && $user->verificationRequest->documents->isNotEmpty())
-                                        <ul class="space-y-2">
-                                            @foreach($user->verificationRequest->documents as $document)
-                                                <li class="flex items-center gap-2">
-                                                    <a href="{{ asset('storage/' . $document->path) }}" target="_blank"
-                                                       class="text-blue-600 text-sm hover:underline flex items-center">
-                                                        {{ $document->type === 'id_card' ? 'ID Card' : 'Additional Document' }}
-                                                        <svg class="w-5 h-5 ml-1 text-gray-800" fill="none" stroke="currentColor"
-                                                             stroke-width="2" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                  d="M14 4v6h6m-2-2L10 16m4-8H4v14h16V10l-6-6z" />
-                                                        </svg>
-                                                    </a>
-                                                </li>
-                                            @endforeach
-                                        </ul>
+                                    @if($user->verificationRequest && $user->verificationRequest->document_path)
+                                        <a href="{{ asset('storage/' . $user->verificationRequest->document_path) }}" target="_blank"
+                                           class="text-blue-600 text-sm hover:underline flex items-center">
+                                            View ID Card
+                                            <svg class="w-5 h-5 ml-1 text-gray-800" fill="none" stroke="currentColor"
+                                                 stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M14 4v6h6m-2-2L10 16m4-8H4v14h16V10l-6-6z" />
+                                            </svg>
+                                        </a>
                                     @else
-                                        <p class="text-gray-500">
-                                            @if(!$user->verificationRequest)
-                                                No verification request submitted.
-                                            @else
-                                                No documents uploaded for this verification request.
-                                            @endif
-                                        </p>
+                                        <p class="text-gray-500">No ID card document uploaded.</p>
                                     @endif
                                 </dd>
                             </div>

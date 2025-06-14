@@ -286,7 +286,7 @@
 
                         <!-- Supporting Documents -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Supporting Documents</label>
+                            <label class="block text-sm font-medium text-gray-700">Proof of Enrolment/Employment</label>
                             <input type="file" name="documents[]" multiple class="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500">
                         </div>
 

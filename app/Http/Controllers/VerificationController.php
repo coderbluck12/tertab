@@ -24,26 +24,53 @@ class VerificationController extends Controller
                 'id_document' => 'required|file|mimes:jpeg,png,jpg,pdf|max:2048'
             ]);
 
-            $user = auth()->user();
+            $documentPath = $request->file('id_document')->store('verification_documents', 'public');
 
-            // Store the document
-            $path = $request->file('id_document')->store('verification_documents', 'public');
-
-            // Create verification request
             $verificationRequest = VerificationRequest::create([
-                'user_id' => $user->id,
+                'user_id' => auth()->id(),
                 'document_type' => $request->document_type,
-                'document_path' => $path,
-                'status' => 'pending'
+                'document_path' => $documentPath,
+                'status' => 'pending',
+                'notes' => $request->notes
             ]);
 
-            // Update user status
-            $user->update(['status' => 'pending']);
+            auth()->user()->update(['status' => 'pending']);
 
-            return redirect()->route('verification.required')->with('success', 'Verification request submitted successfully. We will review your documents shortly.');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Verification request submitted successfully. We will review your documents shortly.'
+                ]);
+            }
+
+            return redirect()->route('verification.required')
+                ->with('success', 'Verification request submitted successfully. We will review your documents shortly.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Verification validation error: ' . $e->getMessage());
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed: ' . collect($e->errors())->first()[0]
+                ], 422);
+            }
+
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
         } catch (\Exception $e) {
             \Log::error('Verification submission error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to submit verification request. Please try again.');
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to submit verification request: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()
+                ->with('error', 'Failed to submit verification request. Please try again.')
+                ->withInput();
         }
     }
 
