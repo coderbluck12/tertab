@@ -78,74 +78,191 @@
 
             <!-- Verification Modal -->
             <div x-data="{ open: false }" 
-                 x-show="open" 
-                 x-on:open-verification-modal.window="open = true"
-                 x-on:keydown.escape.window="open = false"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition ease-in duration-200"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-                 style="display: none;">
-                <div class="fixed inset-0 z-10 overflow-y-auto">
-                    <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                        <div class="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-                            <div>
-                                <div class="mt-3 text-center sm:mt-5">
-                                    <h3 class="text-base font-semibold leading-6 text-gray-900">Verify Your Identity</h3>
-                                    <div class="mt-2">
-                                        <p class="text-sm text-gray-500">
-                                            Please provide the following information to verify your account.
-                                        </p>
+                    x-show="open" 
+                    x-on:open-verification-modal.window="open = true"
+                    x-on:keydown.escape.window="open = false"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0"
+                    x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+                    style="display: none;">
+                    <div class="fixed inset-0 z-10 overflow-y-auto">
+                        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                            <div class="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+                                <div>
+                                    <div class="mt-3 text-center sm:mt-5">
+                                        <h3 class="text-base font-semibold leading-6 text-gray-900">Verify Your Identity</h3>
+                                        <div class="mt-2">
+                                            <p class="text-sm text-gray-500">
+                                                Please upload a valid government-issued ID to verify your account.
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
+
+                                <form method="POST" action="{{ route('verification.submit') }}" enctype="multipart/form-data" class="mt-5 sm:mt-6" 
+                                    x-data="verificationForm"
+                                    @submit.prevent="submitForm"
+                                >
+                                    @csrf
+                                    
+                                    <!-- Success Message -->
+                                    <div x-show="success" 
+                                         x-transition:enter="transition ease-out duration-300"
+                                         x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                         x-transition:enter-end="opacity-100 transform translate-y-0"
+                                         class="mb-4 bg-green-50 border-l-4 border-green-400 p-4">
+                                        <div class="flex">
+                                            <div class="flex-shrink-0">
+                                                <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm text-green-700">
+                                                    Verification request submitted successfully! We will review your documents shortly.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Error Message -->
+                                    <div x-show="error" 
+                                         x-transition:enter="transition ease-out duration-300"
+                                         x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                         x-transition:enter-end="opacity-100 transform translate-y-0"
+                                         class="mb-4 bg-red-50 border-l-4 border-red-400 p-4">
+                                        <div class="flex">
+                                            <div class="flex-shrink-0">
+                                                <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm text-red-700" x-text="errorMessage"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- ID Card Type -->
+                                    <div class="mb-4">
+                                        <x-input-label for="document_type" :value="__('ID Card Type')" />
+                                        <select id="document_type" name="document_type" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                            <option value="">Select ID Card Type</option>
+                                            <option value="national_id">National ID Card</option>
+                                            <option value="passport">Passport</option>
+                                            <option value="drivers_license">Driver's License</option>
+                                        </select>
+                                        <x-input-error :messages="$errors->get('document_type')" class="mt-2" />
+                                    </div>
+
+                                    <!-- ID Document -->
+                                    <div class="mb-4">
+                                        <x-input-label for="id_document" :value="__('Upload ID Card')" />
+                                        <input id="id_document" type="file" name="id_document" class="block mt-1 w-full" accept="image/*,.pdf" required />
+                                        <p class="mt-1 text-sm text-gray-500">Upload a clear image or PDF of your document. Maximum file size: 2MB</p>
+                                        <x-input-error :messages="$errors->get('id_document')" class="mt-2" />
+                                    </div>
+
+                                    <!-- Notes -->
+                                    <div class="mb-4">
+                                        <x-input-label for="notes" :value="__('Additional Notes (Optional)')" />
+                                        <textarea id="notes" name="notes" class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="3"></textarea>
+                                        <x-input-error :messages="$errors->get('notes')" class="mt-2" />
+                                    </div>
+
+                                    <div class="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+                                        <x-primary-button type="submit" 
+                                                        class="w-full justify-center"
+                                                        x-bind:disabled="submitting">
+                                            <span x-show="!submitting">Submit Verification</span>
+                                            <span x-show="submitting" class="flex items-center">
+                                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                Submitting...
+                                            </span>
+                                        </x-primary-button>
+                                        <button type="button" 
+                                                class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto" 
+                                                @click="open = false">
+                                            {{ __('Cancel') }}
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <script>
+                                    document.addEventListener('alpine:init', () => {
+                                        Alpine.data('verificationForm', () => ({
+                                            submitting: false,
+                                            success: false,
+                                            error: false,
+                                            errorMessage: '',
+                                            submitForm(event) {
+                                                this.submitting = true;
+                                                this.success = false;
+                                                this.error = false;
+                                                
+                                                const form = event.target;
+                                                const formData = new FormData(form);
+                                                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                                                
+                                                fetch(form.action, {
+                                                    method: 'POST',
+                                                    body: formData,
+                                                    headers: {
+                                                        'X-CSRF-TOKEN': csrfToken,
+                                                        'Accept': 'application/json',
+                                                        'X-Requested-With': 'XMLHttpRequest'
+                                                    },
+                                                    credentials: 'same-origin'
+                                                })
+                                                .then(async response => {
+                                                    const contentType = response.headers.get('content-type');
+                                                    if (!response.ok) {
+                                                        if (contentType && contentType.includes('application/json')) {
+                                                            const errorData = await response.json();
+                                                            throw new Error(errorData.message || 'Network response was not ok');
+                                                        } else {
+                                                            throw new Error('Server error occurred. Please try again.');
+                                                        }
+                                                    }
+                                                    if (!contentType || !contentType.includes('application/json')) {
+                                                        throw new Error('Invalid response from server');
+                                                    }
+                                                    return response.json();
+                                                })
+                                                .then(data => {
+                                                    this.submitting = false;
+                                                    if (data.success) {
+                                                        this.success = true;
+                                                        setTimeout(() => {
+                                                            window.location.reload();
+                                                        }, 2000);
+                                                    } else {
+                                                        this.error = true;
+                                                        this.errorMessage = data.message || 'An error occurred. Please try again.';
+                                                    }
+                                                })
+                                                .catch(error => {
+                                                    console.error('Error:', error);
+                                                    this.submitting = false;
+                                                    this.error = true;
+                                                    this.errorMessage = error.message || 'An error occurred. Please try again.';
+                                                });
+                                            }
+                                        }));
+                                    });
+                                </script>
                             </div>
-
-                            <form method="POST" action="{{ route('verification.submit') }}" enctype="multipart/form-data" class="mt-5 sm:mt-6">
-                                @csrf
-                                
-                                <!-- ID Card Type -->
-                                <div class="mb-4">
-                                    <x-input-label for="id_card_type" :value="__('ID Card Type')" />
-                                    <select id="id_card_type" name="id_card_type" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
-                                        <option value="">Select ID Card Type</option>
-                                        <option value="national_id">National ID Card</option>
-                                        <option value="passport">Passport</option>
-                                        <option value="drivers_license">Driver's License</option>
-                                    </select>
-                                    <x-input-error :messages="$errors->get('id_card_type')" class="mt-2" />
-                                </div>
-
-                                <!-- ID Card -->
-                                <div class="mb-4">
-                                    <x-input-label for="id_card" :value="__('Upload ID Card')" />
-                                    <input id="id_card" type="file" name="id_card" class="block mt-1 w-full" accept="image/*,.pdf" required />
-                                    <p class="mt-1 text-sm text-gray-500">Upload a clear image or PDF of your document. Maximum file size: 2MB</p>
-                                    <x-input-error :messages="$errors->get('id_card')" class="mt-2" />
-                                </div>
-
-                                <!-- Notes -->
-                                <div class="mb-4">
-                                    <x-input-label for="notes" :value="__('Additional Notes (Optional)')" />
-                                    <textarea id="notes" name="notes" class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="3"></textarea>
-                                    <x-input-error :messages="$errors->get('notes')" class="mt-2" />
-                                </div>
-
-                                <div class="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
-                                    <x-primary-button type="submit" class="w-full justify-center">
-                                        {{ __('Submit Verification') }}
-                                    </x-primary-button>
-                                    <button type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto" @click="open = false">
-                                        {{ __('Cancel') }}
-                                    </button>
-                                </div>
-                            </form>
                         </div>
                     </div>
                 </div>
-            </div>
+
 
             <!-- Submitted Requests Table -->
             <div class="bg-white shadow-sm sm:rounded-lg p-6 mt-6">
