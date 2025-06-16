@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('verification_requests', function (Blueprint $table) {
-            $table->string('verification_name')->after('document_path');
+            if (!Schema::hasColumn('verification_requests', 'verification_name')) {
+                $table->string('verification_name')->after('document_path');
+            }
         });
     }
 
