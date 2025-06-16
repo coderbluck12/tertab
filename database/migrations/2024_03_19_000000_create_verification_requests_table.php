@@ -12,9 +12,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('verification_name')->nullable();
-            $table->string('school_email');
-            $table->string('institution');
-            $table->string('position');
+            $table->string('school_email')->nullable();
+            $table->string('institution')->nullable();
+            $table->string('position')->nullable();
             $table->text('notes')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->text('rejection_reason')->nullable();
