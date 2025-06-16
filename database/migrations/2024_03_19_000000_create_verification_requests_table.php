@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('verification_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('verification_name');
+            $table->string('verification_name')->nullable();
             $table->string('school_email');
             $table->string('institution');
             $table->string('position');
