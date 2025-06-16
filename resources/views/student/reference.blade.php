@@ -177,7 +177,7 @@
                 lecturerDropdown.innerHTML = '<option value="">Select a Lecturer</option>'; // Reset dropdown
 
                 if (institutionId) {
-                    fetch(`/tertab/public/get-lecturers/${institutionId}`)
+                    fetch(`/get-lecturers/${institutionId}`)
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error(`HTTP error! status: ${response.status}`);

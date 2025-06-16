@@ -1,7 +1,7 @@
 @props(['user'])
 
 @if($user->status === 'pending')
-    <div class="top-0 left-0 right-0 bg-yellow-500 text-white px-4 py-3" role="alert">
+    <div class="top-0 left-0 right-0 bg-red-500 text-white px-4 py-3" role="alert">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center">
                 <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
