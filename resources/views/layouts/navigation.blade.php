@@ -13,29 +13,29 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="font-bold">
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
                     @can('request-for-reference')
-                        <x-nav-link :href="route('wallet.show')" :active="request()->routeIs('wallet.show')">
+                        <x-nav-link :href="route('wallet.show')" :active="request()->routeIs('wallet.show')" class="font-bold">
                             {{ __('Wallet') }}
                         </x-nav-link>
                     @endcan
 
                     @can('provide-a-reference')
-                        <x-nav-link :href="route('wallet.show')" :active="request()->routeIs('wallet.show')">
+                        <x-nav-link :href="route('wallet.show')" :active="request()->routeIs('wallet.show')" class="font-bold">
                             {{ __('Wallet') }}
                         </x-nav-link>
                     @endcan
 
                     @can('request-for-reference')
                         @if(auth()->check() && auth()->user()->status !== 'pending')
-                            <x-nav-link :href="route('student.reference')" :active="request()->routeIs('student.reference')">
-                                Request for Reference
+                            <x-nav-link :href="route('institution.attended.show')" :active="request()->routeIs('institution.attended.show')" class="font-bold">
+                                {{ auth()->user()->attended()->count() > 0 ? 'Add more Institution' : 'Add an Institution' }}
                             </x-nav-link>
-                            <x-nav-link :href="route('institution.attended.show')" :active="request()->routeIs('institution.attended.show')">
-                                Add Affliated Institutions
+                            <x-nav-link :href="route('student.reference')" :active="request()->routeIs('student.reference')" class="font-bold">
+                                Request for Reference
                             </x-nav-link>
                         @endif
                     @endcan
@@ -48,21 +48,21 @@
 {{--                            Approved References--}}
 {{--                        </x-nav-link>--}}
                         @if(auth()->check() && auth()->user()->status !== 'pending')
-                            <x-nav-link :href="route('institution.attended.show')" :active="request()->routeIs('institution.attended.show')">
-                                Add Affliated Institutions
+                            <x-nav-link :href="route('institution.attended.show')" :active="request()->routeIs('institution.attended.show')" class="font-bold">
+                            {{ auth()->user()->attended()->count() > 0 ? 'Add more Institution' : 'Add an Institution' }}
                             </x-nav-link>
                         @endif
                     @endcan
 
                     @can('manage-platform')
-                        <x-nav-link :href="route('admin.platform.settings')" :active="request()->routeIs('admin.platform.settings')">
+                        <x-nav-link :href="route('admin.platform.settings')" :active="request()->routeIs('admin.platform.settings')" class="font-bold">
                             Configure Platform
                         </x-nav-link>
-                        <x-nav-link :href="route('admin.lecturers')" :active="request()->routeIs('admin.lecturers')">
+                        <x-nav-link :href="route('admin.lecturers')" :active="request()->routeIs('admin.lecturers')" class="font-bold">
                             Lecturers
                         </x-nav-link>
 
-                        <x-nav-link :href="route('admin.students')" :active="request()->routeIs('admin.students')">
+                        <x-nav-link :href="route('admin.students')" :active="request()->routeIs('admin.students')" class="font-bold">
                             Students
                         </x-nav-link>
                     @endcan
@@ -127,12 +127,12 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="font-bold">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
 
             @can('request-for-reference')
-                <x-responsive-nav-link :href="route('wallet.show')" :active="request()->routeIs('wallet.show')">
+                <x-responsive-nav-link :href="route('wallet.show')" :active="request()->routeIs('wallet.show')" class="font-bold">
                     {{ __('Wallet') }}
                 </x-responsive-nav-link>
             @endcan
@@ -151,29 +151,29 @@
                 </x-responsive-nav-link>
 
                 @can('request-for-reference')
-                    <x-responsive-nav-link :href="route('student.reference')" :active="request()->routeIs('student.reference')">
+                    <x-responsive-nav-link :href="route('student.reference')" :active="request()->routeIs('student.reference')" class="font-bold">
                         Request for Reference
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('institution.attended.show')" :active="request()->routeIs('institution.attended.show')">
-                        Add Institution Attended
+                    <x-responsive-nav-link :href="route('institution.attended.show')" :active="request()->routeIs('institution.attended.show')" class="font-bold">
+                        {{ auth()->user()->attended()->count() > 0 ? 'Add more Institution' : 'Add an Institution' }}
                     </x-responsive-nav-link>
                 @endcan
 
                 @can('provide-a-reference')
-                    <x-responsive-nav-link :href="route('institution.attended.show')" :active="request()->routeIs('institution.attended.show')">
+                    <x-responsive-nav-link :href="route('institution.attended.show')" :active="request()->routeIs('institution.attended.show')" class="font-bold">
                         Add Institution Teaching At
                     </x-responsive-nav-link>
                 @endcan
 
                 @can('manage-platform')
-                    <x-responsive-nav-link :href="route('admin.platform.settings')" :active="request()->routeIs('admin.platform.settings')">
+                    <x-responsive-nav-link :href="route('admin.platform.settings')" :active="request()->routeIs('admin.platform.settings')" class="font-bold">
                         Configure Platform
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('admin.lecturers')" :active="request()->routeIs('admin.lecturers')">
+                    <x-responsive-nav-link :href="route('admin.lecturers')" :active="request()->routeIs('admin.lecturers')" class="font-bold">
                         Lecturers
                     </x-responsive-nav-link>
 
-                    <x-responsive-nav-link :href="route('admin.students')" :active="request()->routeIs('admin.students')">
+                    <x-responsive-nav-link :href="route('admin.students')" :active="request()->routeIs('admin.students')" class="font-bold">
                         Students
                     </x-responsive-nav-link>
                 @endcan

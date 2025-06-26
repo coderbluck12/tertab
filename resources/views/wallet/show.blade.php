@@ -29,7 +29,7 @@
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <h3 class="text-lg font-semibold text-blue-800 mb-2">How it works</h3>
                     <p class="text-blue-600">
-                        Your wallet balance increases automatically when students successfully request references from you.
+                        Your wallet balance increases automatically when students successfully request references from you and the reference is both completed and approved.
                         The platform will credit your wallet with the reference request amount after each successful transaction.
                     </p>
                 </div>
@@ -39,6 +39,13 @@
         @if(session('success'))
         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
             <span class="block sm:inline">{{ session('success') }}</span>
+            @if(session()->has('pending_reference_request'))
+                <div class="mt-2">
+                    <a href="{{ route('student.reference') }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm">
+                        Continue with Reference Request
+                    </a>
+                </div>
+            @endif
         </div>
         @endif
 

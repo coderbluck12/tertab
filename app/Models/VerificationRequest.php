@@ -14,7 +14,12 @@ class VerificationRequest extends Model
         'document_type',
         'document_path',
         'status',
-        'rejection_reason'
+        'rejection_reason',
+        'verification_name',
+        'notes',
+        'school_email',
+        'institution',
+        'position'
     ];
 
     public function user()

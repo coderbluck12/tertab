@@ -146,9 +146,15 @@
                 <div class="flex justify-between mb-4">
                     <h3 class="text-lg font-semibold text-gray-800">Your Reference Requests</h3>
                     @if($user->status !== 'pending')
-                        <a href="{{ route('student.reference') }}" class="bg-red-500 hover:text-red-600 hover:border hover:border-red-600 text-white px-4 py-2 rounded">
-                            Request for Reference
-                        </a>
+                        @if($hasInstitution)
+                            <a href="{{ route('student.reference') }}" class="bg-red-500 hover:text-red-600 hover:border hover:border-red-600 text-white px-4 py-2 rounded">
+                                Request for Reference
+                            </a>
+                        @else
+                            <button type="button" onclick="alert('Please add an institution before requesting a reference.');" class="bg-red-500 text-white px-4 py-2 rounded opacity-70 cursor-not-allowed">
+                                Request for Reference
+                            </button>
+                        @endif
                     @else
                         <button type="button" x-data x-on:click="$dispatch('open-verification-modal')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
                             Verify ID
@@ -388,7 +394,17 @@
                             </div>
 
                             <div class="mt-3 flex space-x-3">
-                                <a href="{{ route('student.reference.show', $request->id) }}" class="text-blue-500 hover:underline">View</a>
+                                @if($request->status == 'pending')
+                                    <a href="{{ route('student.reference.edit', $request->id) }}" class="text-blue-500 hover:underline">Edit</a>
+                                @elseif($request->status == 'lecturer approved')
+                                    <span class="text-green-500">Approved, awaiting document</span>
+                                @elseif($request->status == 'document_uploaded')
+                                    <a href="{{ route('student.reference.show', $request->id) }}" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Download Document</a>
+                                @elseif($request->status == 'lecturer email sent')
+                                    <span class="text-gray-500">Email sent by lecturer</span>
+                                @else
+                                    <a href="{{ route('student.reference.show', $request->id) }}" class="text-blue-500 hover:underline">View</a>
+                                @endif
                                 @if(in_array($request->status, ['lecturer completed', 'lecturer email sent']))
                                     <a href="{{ route('student.reference.mark_completed', $request->id) }}" class="text-gray-800 hover:underline">Confirm Completed</a>
                                 @endif
@@ -405,7 +421,6 @@
                                 @endif
 
                             @if($request->status == 'pending')
-                                    <a href="{{ route('student.reference.edit', $request->id) }}" class="text-green-500 hover:underline">Edit</a>
                                     <form action="{{ route('reference.destroy', $request->id) }}" method="POST" class="inline-block">
                                         @csrf
                                         @method('DELETE')

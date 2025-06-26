@@ -49,13 +49,12 @@ class ReferenceController extends Controller
      */
     public function store(Request $request)
     {
-            $request->validate([
+        $request->validate([
             'institution_id' => 'required|exists:institutions,id',
-                'lecturer_id' => 'required|exists:users,id',
+            'lecturer_id' => 'required|exists:users,id',
             'reference_type' => 'required|in:email,document',
             'request_type' => 'required|in:normal,express',
             'reference_description' => 'required|string',
-            'reference_email' => 'required_if:reference_type,email|email|nullable'
         ]);
 
         // Get the current reference request price
@@ -68,8 +67,11 @@ class ReferenceController extends Controller
         // Check if user has sufficient funds
         $wallet = auth()->user()->wallet;
         if (!$wallet || !$wallet->hasSufficientFunds($price)) {
+            // Store the form data in session for later use
+            session(['pending_reference_request' => $request->all()]);
+            
             return redirect()->route('wallet.show')
-                ->with('error', 'Insufficient funds. Please fund your wallet to proceed with the reference request.');
+                ->with('error', 'Insufficient funds. Please fund your wallet to proceed with the reference request. Your form data has been saved.');
         }
 
         // Deduct the amount from wallet
@@ -77,18 +79,17 @@ class ReferenceController extends Controller
             return back()->with('error', 'Failed to process payment. Please try again.');
         }
 
-            $reference = Reference::create([
+        $reference = Reference::create([
             'student_id' => auth()->id(),
-                'lecturer_id' => $request->lecturer_id,
+            'lecturer_id' => $request->lecturer_id,
             'institution_id' => $request->institution_id,
-                'reference_type' => $request->reference_type,
+            'reference_type' => $request->reference_type,
             'request_type' => $request->request_type,
-                'reference_description' => $request->reference_description,
-            'reference_email' => $request->reference_email,
-                'status' => 'pending',
-            ]);
-            
-            // Send notification to lecturer
+            'reference_description' => $request->reference_description,
+            'status' => 'pending',
+        ]);
+        
+        // Send notification to lecturer
         $lecturer = User::find($request->lecturer_id);
         try {
             Mail::to($lecturer->email)->send(new NotificationMail(
@@ -102,22 +103,24 @@ class ReferenceController extends Controller
             \Log::error('Mail sending error: ' . $e->getMessage());
         }
 
-            // Send notification to admins
-        $admins = User::where('role', 'admin')->pluck('email');
-        try {
-            Mail::to($admins)->send(new NotificationMail(
-                "New Reference Request",
-                "A new reference request has been submitted by " . auth()->user()->name . " to " . $lecturer->name . ".",
-                "View Request",
-                url('/admin/references')
-            ));
-        } catch (\Exception $e) {
-            // Log the error but continue with the request
-            \Log::error('Mail sending error: ' . $e->getMessage());
+        // Send notification to admins
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            try {
+                Mail::to($admin->email)->send(new NotificationMail(
+                    "New Reference Request",
+                    "A new reference request has been submitted by " . auth()->user()->name . " to " . $lecturer->name . ".",
+                    "View Request",
+                    url('/admin/references')
+                ));
+            } catch (\Exception $e) {
+                // Log the error but continue with the request
+                \Log::error('Mail sending error: ' . $e->getMessage());
+            }
         }
 
-            return redirect()->route('student.dashboard')
-            ->with('success', 'Reference request submitted successfully.');
+        return redirect()->route('student.dashboard')
+        ->with('success', 'Reference request submitted successfully.');
     }
 
     /**
@@ -170,21 +173,29 @@ class ReferenceController extends Controller
         $request->save();
 
         // Notify student
-        $this->notificationService->send(
-            $request->student_id,
-            'reference_status',
-            'Your Reference Request Has Been Approved',
-            "Your reference request has been approved by {$request->lecturer->name}.",
-            url('/student/reference/' . $id)
-        );
+        try {
+            $this->notificationService->send(
+                $request->student_id,
+                'reference_status',
+                'Your Reference Request Has Been Approved',
+                "Your reference request has been approved by {$request->lecturer->name}.",
+                route('student.reference.show', $id)
+            );
+        } catch (\Exception $e) {
+            \Log::error('Notification error (student): ' . $e->getMessage());
+        }
 
         // Notify admins
-        $this->notificationService->sendToAdmins(
-            'reference_status',
-            'Reference Request Approved',
-            "{$request->lecturer->name} has approved a reference request for {$request->student->name}.",
-            url('/admin/reference/' . $id)
-        );
+        try {
+            $this->notificationService->sendToAdmins(
+                'reference_status',
+                'Reference Request Approved',
+                "{$request->lecturer->name} has approved a reference request for {$request->student->name}.",
+                route('admin.reference.show', $id)
+            );
+        } catch (\Exception $e) {
+            \Log::error('Notification error (admin): ' . $e->getMessage());
+        }
 
         return redirect()->back()->with('success', 'Reference request approved successfully.');
     }
@@ -217,13 +228,60 @@ class ReferenceController extends Controller
         return redirect()->route('lecturer.dashboard')->with('success', 'Reference request rejected successfully.');
     }
 
+    public function upload(Request $request, $id)
+    {
+        $request->validate([
+            'document' => 'required|file|mimes:pdf,doc,docx|max:2048',
+        ]);
+
+        $reference = Reference::findOrFail($id);
+        $path = $request->file('document')->store('reference_documents', 'public');
+
+        $reference->update([
+            'status' => 'document_uploaded',
+            'document_path' => $path,
+        ]);
+
+        // Send a notification to the student
+        try {
+            Mail::to($reference->student->email)->send(new ReferenceDocumentMail($reference));
+        } catch (\Exception $e) {
+            \Log::error('Mail sending error: ' . $e->getMessage());
+        }
+
+        return back()->with('success', 'Document uploaded successfully.');
+    }
+
     public function confirm_email_sent(Request $request, $id)
     {
         $reference = Reference::with(['student', 'lecturer'])->findOrFail($id);
 
-        $reference->status = 'lecturer email sent';
+        $reference->status = 'completed';
+        if ($reference->request_type == 'express') {
+            $price = PlatformSetting::first()->express_reference_request_price;
+        } else {
+            $price = PlatformSetting::first()->reference_request_price;
+        }
+
+        // Credit lecturer's wallet
+        $lecturerWallet = $reference->lecturer->wallet;
+        $lecturerWallet->credit($price);
+        $reference->payment_processed = true;
         $reference->save();
 
+        // Notify lecturer of payment
+        try {
+            Mail::to($reference->lecturer->email)->send(new NotificationMail(
+                "Payment Received for Reference Request",
+                "You have received ₦" . number_format($price, 2) . " for completing the reference request for {$reference->student->name}. Your wallet has been credited.",
+                "View Wallet",
+                url('/wallet')
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Payment notification email failed to send: ' . $e->getMessage());
+        }
+
+        // Notify student
         try {
             Mail::to($reference->student->email)->send(new NotificationMail(
                 "Lecturer Has Sent an Email",
@@ -235,16 +293,19 @@ class ReferenceController extends Controller
             \Log::error('Mail sending error: ' . $e->getMessage());
         }
 
-        $admins = User::where('role', 'admin')->pluck('email');
-        try {
-            Mail::to($admins)->send(new NotificationMail(
-                "Reference Email Sent",
-                "{$reference->lecturer->name} has confirmed sending an email for a reference request for {$reference->student->name}.",
-                "View Details",
-                url('/admin/references')
-            ));
-        } catch (\Exception $e) {
-            \Log::error('Mail sending error: ' . $e->getMessage());
+        // Notify admins
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            try {
+                Mail::to($admin->email)->send(new NotificationMail(
+                    "Reference Email Sent",
+                    "{$reference->lecturer->name} has confirmed sending an email for a reference request for {$reference->student->name}.",
+                    "View Details",
+                    url('/admin/references')
+                ));
+            } catch (\Exception $e) {
+                \Log::error('Mail sending error: ' . $e->getMessage());
+            }
         }
 
         return redirect()->route('lecturer.dashboard')->with('success', 'Email sent to institution successfully.');
@@ -268,16 +329,18 @@ class ReferenceController extends Controller
             \Log::error('Mail sending error: ' . $e->getMessage());
         }
 
-        $admins = User::where('role', 'admin')->pluck('email');
-        try {
-            Mail::to($admins)->send(new NotificationMail(
-                "Reference Request Completed",
-                "{$reference->lecturer->name} has marked a reference request for {$reference->student->name} as completed.",
-                "View Details",
-                url('/admin/references')
-            ));
-        } catch (\Exception $e) {
-            \Log::error('Mail sending error: ' . $e->getMessage());
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            try {
+                Mail::to($admin->email)->send(new NotificationMail(
+                    "Reference Request Completed",
+                    "{$reference->lecturer->name} has marked a reference request for {$reference->student->name} as completed.",
+                    "View Details",
+                    url('/admin/references')
+                ));
+            } catch (\Exception $e) {
+                \Log::error('Mail sending error: ' . $e->getMessage());
+            }
         }
 
         return redirect()->route('lecturer.dashboard')->with('success', 'Request marked completed successfully.');
@@ -287,8 +350,46 @@ class ReferenceController extends Controller
     {
         $reference = Reference::with(['student', 'lecturer'])->findOrFail($id);
 
+        // Check if payment has already been processed
+        if ($reference->payment_processed) {
+            return redirect()->route('student.dashboard')->with('error', 'Payment has already been processed for this reference.');
+        }
+
         $reference->status = 'student confirmed';
+        $reference->payment_processed = true; // Mark as paid
         $reference->save();
+
+        // Credit the lecturer's wallet
+        $lecturer = $reference->lecturer;
+        $lecturerWallet = $lecturer->wallet;
+        
+        if (!$lecturerWallet) {
+            // Create wallet if it doesn't exist
+            $lecturerWallet = \App\Models\Wallet::create([
+                'user_id' => $lecturer->id,
+                'balance' => 0,
+                'currency' => 'NGN'
+            ]);
+        }
+
+        // Calculate the amount to credit (same as what was deducted from student)
+        $settings = PlatformSetting::first();
+        $amount = $reference->request_type === 'express' ? $settings->express_reference_request_price : $settings->reference_request_price;
+        
+        // Credit the lecturer's wallet
+        $lecturerWallet->add($amount);
+
+        // Send email notification to lecturer about payment
+        try {
+            Mail::to($lecturer->email)->send(new \App\Mail\NotificationMail(
+                "Payment Received for Reference Request",
+                "You have received ₦" . number_format($amount, 2) . " for completing the reference request for {$reference->student->name}. Your wallet has been credited.",
+                "View Wallet",
+                url('/wallet')
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Payment notification email failed to send: ' . $e->getMessage());
+        }
 
         try {
             Mail::to($reference->lecturer->email)->send(new NotificationMail(
@@ -301,78 +402,21 @@ class ReferenceController extends Controller
             \Log::error('Mail sending error: ' . $e->getMessage());
         }
 
-        $admins = User::where('role', 'admin')->pluck('email');
-        try {
-            Mail::to($admins)->send(new NotificationMail(
-                "Reference Request Finalized",
-                "{$reference->student->name} has confirmed that their reference request with {$reference->lecturer->name} is finalized.",
-                "View Details",
-                url('/admin/references')
-            ));
-        } catch (\Exception $e) {
-            \Log::error('Mail sending error: ' . $e->getMessage());
-        }
-
-        return redirect()->route('lecturer.dashboard')->with('success', 'Request marked completed successfully.');
-    }
-
-
-    public function uploadDocument(Request $request, $id)
-    {
-        $reference = Reference::findOrFail($id);
-
-        $request->validate([
-            'document' => 'required|mimes:pdf,doc,docx|max:2048',
-        ]);
-
-        if ($request->hasFile('document')) {
-            $documents = $request->file('document');
-
-            if (!is_array($documents)) {
-                $documents = [$documents];
-            }
-
-            foreach ($documents as $document) {
-                $path = $document->store('reference_documents', 'public');
-                $reference->document_path = $path;
-
-                Document::create([
-                    'user_id' => $reference->student_id,
-                    'reference_id' => $id,
-                    'path' => $path,
-                    'type' => $reference->reference_type
-                ]);
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            try {
+                Mail::to($admin->email)->send(new NotificationMail(
+                    "Reference Request Finalized",
+                    "{$reference->student->name} has confirmed that their reference request with {$reference->lecturer->name} is finalized. Payment of ₦" . number_format($amount, 2) . " has been credited to {$reference->lecturer->name}'s wallet.",
+                    "View Details",
+                    url('/admin/references')
+                ));
+            } catch (\Exception $e) {
+                \Log::error('Mail sending error: ' . $e->getMessage());
             }
         }
 
-        try {
-            Mail::to($reference->student->email)->send(new NotificationMail(
-                "Reference Document Uploaded",
-                "A document has been uploaded for your reference request by {$reference->lecturer->name}.",
-                "Download Document",
-                url('/student/reference/' . $id)
-            ));
-        } catch (\Exception $e) {
-            \Log::error('Mail sending error: ' . $e->getMessage());
-        }
-
-        $admins = User::where('role', 'admin')->pluck('email');
-        try {
-            Mail::to($admins)->send(new NotificationMail(
-                "Reference Document Uploaded",
-                "A document has been uploaded for a reference request involving {$reference->student->name} and {$reference->lecturer->name}.",
-                "View Document",
-                url('/admin/reference/' . $id)
-            ));
-        } catch (\Exception $e) {
-            \Log::error('Mail sending error: ' . $e->getMessage());
-        }
-
-//        if ($reference->reference_type == 'email') {
-//            Mail::to($reference->student->email)->send(new ReferenceDocumentMail($reference));
-//        }
-
-        return redirect()->route('lecturer.dashboard')->with('success', 'Document uploaded and sent successfully.');
+        return redirect()->route('student.dashboard')->with('success', 'Reference request confirmed and payment processed successfully.');
     }
 
 }

@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('verification_requests', function (Blueprint $table) {
-            if (!Schema::hasColumn('verification_requests', 'document_type')) {
-                $table->string('document_type')->after('user_id');
+            if (!Schema::hasColumn('verification_requests', 'notes')) {
+                $table->text('notes')->nullable()->after('status');
             }
         });
     }
@@ -24,8 +24,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('verification_requests', function (Blueprint $table) {
-            if (Schema::hasColumn('verification_requests', 'document_type')) {
-                $table->dropColumn('document_type');
+            if (Schema::hasColumn('verification_requests', 'notes')) {
+                $table->dropColumn('notes');
             }
         });
     }

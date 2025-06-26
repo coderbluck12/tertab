@@ -162,8 +162,8 @@ dd($request);
         // Find the student by ID
         $student = User::findOrFail($id);
 
-        // Update status to "approved"
-        $student->update(['status' => 'approved']);
+        // Update status to "verified"
+        $student->update(['status' => 'verified']);
 
         // Send notification
         $this->notificationService->send(
@@ -171,7 +171,8 @@ dd($request);
             'account_status',
             'Account Approved',
             'Your account has been approved. You can now access the platform.',
-            url('/login')
+            url('/login'),
+            true
         );
 
         return redirect()->route('admin.dashboard')->with('success', 'Student approved successfully.');
@@ -191,7 +192,8 @@ dd($request);
             'account_status',
             'Account Deactivated',
             'Your account has been deactivated. If this was a mistake, please contact the administrator.',
-            url('/login')
+            url('/login'),
+            true
         );
 
         return redirect()->route('admin.dashboard')->with('success', 'Student deactivated successfully.');

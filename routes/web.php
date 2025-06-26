@@ -53,7 +53,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('reference/{id}/confirm_email_sent', [ReferenceController::class, 'confirm_email_sent'])->name('lecturer.reference.confirm_email_sent');
     Route::patch('reference/{id}/confirm_completed', [ReferenceController::class, 'confirm_completed'])->name('lecturer.reference.confirm_completed');
     Route::get('/lecturer/reference/{id}', [LecturerController::class, 'show'])->name('lecturer.reference.show');
-    Route::post('/lecturer/reference/{id}/upload', [ReferenceController::class, 'uploadDocument'])->name('lecturer.reference.upload');
+    Route::post('/lecturer/reference/{id}/upload', [ReferenceController::class, 'upload'])->name('lecturer.reference.upload');
     Route::get('/lecturer/institution', [InstitutionAttendedController::class, 'index'])->name('lecturer.institution.index');
 
     // Institution routes
@@ -85,7 +85,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(fu
     Route::get('/reference/{id}', [AdminController::class, 'show'])->name('admin.reference.show');
     Route::patch('reference/{id}/approve', [ReferenceController::class, 'approve'])->name('admin.reference.approve');
     Route::patch('reference/{id}/reject', [ReferenceController::class, 'reject'])->name('admin.reference.reject');
-    Route::post('reference/{id}/upload', [ReferenceController::class, 'uploadDocument'])->name('admin.reference.upload');
+    Route::post('reference/{id}/upload', [ReferenceController::class, 'upload'])->name('admin.reference.upload');
     Route::get('/settings', [PlatfromSettingsController::class, 'index'])->name('admin.platform.settings');
     Route::patch('/settings', [PlatfromSettingsController::class, 'update'])->name('admin.platform.settings.update');
     Route::get('/students', [AdminController::class, 'students'])->name('admin.students');

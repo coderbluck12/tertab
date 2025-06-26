@@ -11,14 +11,14 @@ class NotificationMail extends Mailable
     use Queueable, SerializesModels;
 
     public $title;
-    public $message;
+    public $body;
     public $button_text;
     public $button_url;
 
-    public function __construct($title, $message, $button_text = null, $button_url = null)
+    public function __construct($title, $body, $button_text = null, $button_url = null)
     {
         $this->title = $title;
-        $this->message = $message;
+        $this->body = $body;
         $this->button_text = $button_text;
         $this->button_url = $button_url;
     }
@@ -26,10 +26,10 @@ class NotificationMail extends Mailable
     public function build()
     {
         return $this->subject($this->title)
-            ->markdown('emails.notification')
+            ->view('emails.notification')
             ->with([
                 'title' => $this->title,
-                'message' => $this->message,
+                'body' => $this->body,
                 'button_text' => $this->button_text,
                 'button_url' => $this->button_url,
             ]);

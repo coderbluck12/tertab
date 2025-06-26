@@ -25,12 +25,19 @@ class NotificationService
         if ($sendEmail) {
             $user = User::find($userId);
             if ($user && $user->email) {
-                Mail::to($user->email)->send(new NotificationMail(
-                    $title,
-                    $message,
-                    'View Details',
-                    $link
-                ));
+                // Log the email address
+                \Log::info('Attempting to send notification email', ['user_id' => $userId, 'email' => $user->email]);
+                // Validate email address
+                if (filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+                    Mail::to($user->email)->send(new NotificationMail(
+                        $title,
+                        $message,
+                        'View Details',
+                        $link
+                    ));
+                } else {
+                    \Log::error('Invalid email address for notification', ['user_id' => $userId, 'email' => $user->email]);
+                }
             }
         }
     }

@@ -1,6 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
+    @if(session('success'))
+        <div class="bg-green-500 text-white p-4 rounded-md shadow-md mb-4">
+            {{ session('success') }}
+        </div>
+    @endif
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg  flex justify-center ">
@@ -31,8 +36,8 @@
                             <label class="block text-sm font-medium text-gray-700">Request Type</label>
                             <select id="request_type" name="request_type" class="block mt-2 w-full border-gray-300 focus:ring-0 focus:border-gray-500" required>
                                 <option value="">Select Request Type</option>
-                                <option value="normal">Normal Request</option>
-                                <option value="express">Express Request</option>
+                                <option value="normal" {{ old('request_type') == 'normal' ? 'selected' : '' }}>Normal Request</option>
+                                <option value="express" {{ old('request_type') == 'express' ? 'selected' : '' }}>Express Request</option>
                             </select>
                         </div>
 
@@ -46,8 +51,8 @@
                             <label class="block text-sm font-medium text-gray-700">Reference Type</label>
                             <select id="reference_type" name="reference_type" class="block mt-2 w-full border-gray-300 focus:ring-0 focus:border-gray-500" required>
                                 <option value="">Select Reference Format</option>
-                                <option value="email">Email Reference</option>
-                                <option value="document">Document Reference</option>
+                                <option value="email" {{ old('reference_type') == 'email' ? 'selected' : '' }}>Email Reference</option>
+                                <option value="document" {{ old('reference_type') == 'document' ? 'selected' : '' }}>Document Reference</option>
                             </select>
                             <p class="mt-1 text-sm text-gray-500">
                                 <span id="email-hint" class="hidden">Email Reference: The reference will be sent directly to the specified email address.</span>
@@ -56,19 +61,26 @@
                         </div>
 
                         <!-- Email Input -->
-                        <div id="email-input-container" class="mb-4 hidden">
+                        <!-- <div id="email-input-container" class="mb-4 hidden">
                             <label for="reference_email" class="block text-sm font-medium text-gray-700">Email Address (email of the institution you need reference to be sent to)</label>
                             <input type="email" id="reference_email" name="reference_email" class="block mt-2 w-full border-gray-300 focus:ring-0 focus:border-gray-500" placeholder="Enter email address of recipient">
                             <p class="mt-1 text-sm text-gray-500">This is where the reference will be sent. Please ensure this is a valid email address.</p>
                             @error('reference_email')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
-                        </div>
+                        </div> -->
 
                         <!-- Document Reference Info -->
                         <div id="document-info" class="mb-4 hidden p-4 bg-blue-50 rounded-md border border-blue-200">
                             <p class="text-sm text-blue-600">
                                 Document Reference selected: The lecturer will upload a reference document that you can download from your dashboard.
+                            </p>
+                        </div>
+
+                        <!-- Email Reference Info -->
+                        <div id="email-info" class="mb-4 hidden p-4 bg-blue-50 rounded-md border border-blue-200">
+                            <p class="text-sm text-blue-600">
+                                Email Reference selected: The reference will be sent directly to the specified email address.
                             </p>
                         </div>
 
@@ -78,7 +90,7 @@
                             <select id="institution" name="institution_id" class="block mt-2 w-full border-gray-300 focus:ring-0 focus:border-gray-500" required>
                                 <option value="">Select an Institution</option>
                                 @foreach($studentInstitutions as $attended)
-                                    <option value="{{ $attended->institution->id }}">
+                                    <option value="{{ $attended->institution->id }}" {{ old('institution_id') == $attended->institution->id ? 'selected' : '' }}>
                                         {{ $attended->institution->name }} - ({{ $attended->state->name ?? 'No State' }})
                                     </option>
                                 @endforeach
@@ -96,7 +108,7 @@
                         <!-- Request Description -->
                         <div class="mb-4">
                             <label for="reference_description" class="block text-sm font-medium text-gray-700">Request Detail / Description</label>
-                            <textarea id="reference_description" name="reference_description" class="w-full p-2 border rounded mt-1" placeholder="Add a note to your reference request..." required></textarea>
+                            <textarea id="reference_description" name="reference_description" class="w-full p-2 border rounded mt-1" placeholder="Add a note to your reference request..." required>{{ old('reference_description') }}</textarea>
                         </div>
 
                         <!-- Submit Button -->
@@ -114,6 +126,7 @@
         document.addEventListener("DOMContentLoaded", function () {
             let referenceTypeDropdown = document.getElementById("reference_type");
             let emailContainer = document.getElementById("email-input-container");
+            let emailInfo = document.getElementById("email-info");
             let documentInfo = document.getElementById("document-info");
             let emailHint = document.getElementById("email-hint");
             let documentHint = document.getElementById("document-hint");
@@ -127,29 +140,66 @@
             const originalPrice = parseInt(priceValue.value);
             const expressPrice = parseInt(document.getElementById('expressPrice').value);
 
-            // Toggle email input and document info based on reference type selection
-            referenceTypeDropdown.addEventListener("change", function () {
-                if (this.value === "email") {
-                    emailContainer.classList.remove("hidden");
+            // Handle old input values for reference type
+            const oldReferenceType = '{{ old("reference_type") }}';
+            if (oldReferenceType) {
+                if (oldReferenceType === "email") {
+                    emailInfo.classList.remove("hidden");
                     documentInfo.classList.add("hidden");
                     emailHint.classList.remove("hidden");
                     documentHint.classList.add("hidden");
-                    emailInput.setAttribute("required", "required");
-                    emailInput.value = ""; // Clear the email field when switching to email type
-                } else if (this.value === "document") {
-                    emailContainer.classList.add("hidden");
+                    if (emailInput) {
+                        emailInput.setAttribute("required", "required");
+                        emailInput.value = '{{ old("reference_email") }}';
+                    }
+                } else if (oldReferenceType === "document") {
+                    emailInfo.classList.add("hidden");
                     documentInfo.classList.remove("hidden");
                     emailHint.classList.add("hidden");
                     documentHint.classList.remove("hidden");
-                    emailInput.removeAttribute("required");
-                    emailInput.value = ""; // Clear the email field when switching to document type
+                    if (emailInput) {
+                        emailInput.removeAttribute("required");
+                        emailInput.value = "";
+                    }
+                }
+            }
+
+            // Handle old input values for request type
+            const oldRequestType = '{{ old("request_type") }}';
+            if (oldRequestType === "express") {
+                expressNotification.classList.remove("hidden");
+                priceDisplay.textContent = '₦' + expressPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+
+            // Toggle email input and document info based on reference type selection
+            referenceTypeDropdown.addEventListener("change", function () {
+                if (this.value === "email") {
+                    emailInfo.classList.remove("hidden");
+                    documentInfo.classList.add("hidden");
+                    emailHint.classList.remove("hidden");
+                    documentHint.classList.add("hidden");
+                    if (emailInput) {
+                        emailInput.setAttribute("required", "required");
+                        emailInput.value = "";
+                    }
+                } else if (this.value === "document") {
+                    emailInfo.classList.add("hidden");
+                    documentInfo.classList.remove("hidden");
+                    emailHint.classList.add("hidden");
+                    documentHint.classList.remove("hidden");
+                    if (emailInput) {
+                        emailInput.removeAttribute("required");
+                        emailInput.value = "";
+                    }
                 } else {
-                    emailContainer.classList.add("hidden");
+                    emailInfo.classList.add("hidden");
                     documentInfo.classList.add("hidden");
                     emailHint.classList.add("hidden");
                     documentHint.classList.add("hidden");
-                    emailInput.removeAttribute("required");
-                    emailInput.value = ""; // Clear the email field when no type is selected
+                    if (emailInput) {
+                        emailInput.removeAttribute("required");
+                        emailInput.value = "";
+                    }
                 }
             });
 
@@ -172,12 +222,16 @@
             let institutionDropdown = document.getElementById("institution");
             let lecturerDropdown = document.getElementById("lecturer");
 
+            // Handle old input values for lecturer selection
+            const oldInstitutionId = '{{ old("institution_id") }}';
+            const oldLecturerId = '{{ old("lecturer_id") }}';
+
             institutionDropdown.addEventListener("change", function () {
                 let institutionId = this.value;
                 lecturerDropdown.innerHTML = '<option value="">Select a Lecturer</option>'; // Reset dropdown
 
                 if (institutionId) {
-                    fetch(`/get-lecturers/${institutionId}`)
+                    fetch(`/tertab/public/get-lecturers/${institutionId}`)
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -192,6 +246,12 @@
                                     option.value = lecturer.id;
                                     option.textContent = lecturer.name + ' - ' +
                                         (lecturer.attended.length > 0 ? lecturer.attended[0].institution.name : 'No Institution');
+                                    
+                                    // Select the old lecturer if it matches
+                                    if (oldLecturerId && lecturer.id == oldLecturerId) {
+                                        option.selected = true;
+                                    }
+                                    
                                     lecturerDropdown.appendChild(option);
                                 });
                             } else {
@@ -203,6 +263,12 @@
                         });
                 }
             });
+
+            // If there's an old institution selected, trigger the change event to load lecturers
+            if (oldInstitutionId) {
+                institutionDropdown.value = oldInstitutionId;
+                institutionDropdown.dispatchEvent(new Event('change'));
+            }
         });
     </script>
 @endsection

@@ -34,6 +34,10 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Prevent double submission
+    if ($request->session()->has('registration_processed')) {
+        return redirect(route('dashboard', absolute: false));
+    }
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => [
@@ -59,8 +63,11 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Fire Registered event
-        event(new Registered($user));
+         // Mark registration as processed
+        $request->session()->put('registration_processed', true);
+
+    // Fire Registered event (this automatically sends verification email)
+    event(new Registered($user));
 
         // Log in the user
         Auth::login($user);

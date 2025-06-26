@@ -30,7 +30,9 @@ class StudentController extends Controller
             'rejected' => $requests->where('status', 'lecturer declined')->count(),
         ];
 
-        return view('student.dashboard', compact('lecturers', 'requests', 'requestCounts', 'user'));
+        $hasInstitution = $user->attended()->exists();
+
+        return view('student.dashboard', compact('lecturers', 'requests', 'requestCounts', 'user', 'hasInstitution'));
     }
 
     /**
@@ -111,17 +113,9 @@ class StudentController extends Controller
      */
     public function show(string $id)
     {
-        $request = Reference::findOrFail($id);
+        $request = Reference::with(['student', 'lecturer', 'institution'])->findOrFail($id);
 
-        $documents = $request->student->documents()
-            ->where(function ($query) {
-                $query->whereNull('type')->orWhere('type', '');
-            })
-            ->get();
-
-        $reference_documents = $request->documents()->get();
-
-        return view('student.show', compact('request', 'documents', 'reference_documents'));
+        return view('student.show', compact('request'));
     }
 
     public function reference()

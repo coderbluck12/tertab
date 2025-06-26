@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data" id="registration-form">
         @csrf
 
         <!-- Name -->
@@ -70,7 +70,7 @@
                 {{ __('Already registered?') }}
             </a>
 
-            <x-primary-button class="ms-4">
+            <x-primary-button class="ms-4" id="register-btn">
                 {{ __('Register') }}
             </x-primary-button>
         </div>
@@ -158,8 +158,35 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Show verification dialog after successful registration
-            window.dispatchEvent(new CustomEvent('verification-dialog'));
+            const form = document.getElementById('registration-form');
+            const submitBtn = document.getElementById('register-btn');
+            let isSubmitting = false;
+
+            // Prevent double submission
+            form.addEventListener('submit', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                isSubmitting = true;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = 'Registering...';
+                
+                // Re-enable after 3 seconds as fallback
+                setTimeout(() => {
+                    isSubmitting = false;
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Register';
+                }, 3000);
+            });
+
+            // Only show verification dialog if there's a success parameter
+            // This should be triggered from your controller after successful registration
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('registered') === 'success') {
+                window.dispatchEvent(new CustomEvent('verification-dialog'));
+            }
         });
     </script>
 </x-guest-layout>

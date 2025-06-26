@@ -31,7 +31,8 @@ class VerificationController extends Controller
                 'document_type' => $request->document_type,
                 'document_path' => $documentPath,
                 'status' => 'pending',
-                'notes' => $request->notes
+                'notes' => $request->notes,
+                'verification_name' => $request->document_type
             ]);
 
             auth()->user()->update(['status' => 'pending']);

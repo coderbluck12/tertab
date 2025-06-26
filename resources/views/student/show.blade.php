@@ -23,26 +23,61 @@
                 </div>
             </div>
 
-            @if($request->status == 'lecturer approved')
-                <div class="bg-white shadow-lg sm:rounded-lg p-6 mb-8">
-                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Reference Documents</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        @if($reference_documents->isEmpty())
-                            <p>No reference documents available.</p>
-                        @else
-                            @foreach($reference_documents as $document)
-                                <div class="bg-gray-100 p-4 rounded-lg shadow-sm">
-                                    <h6 class="text-sm font-semibold">{{ ucfirst($document->type) }}</h6>
-                                    <a href="{{ asset('storage/'.$document->path) }}" class="text-blue-500 hover:text-blue-700" target="_blank">
-                                        Download Document
-                                    </a>
-                                </div>
-                            @endforeach
-                        @endif
+            <div class="bg-white shadow-lg sm:rounded-lg p-6 mb-8">
+                <h3 class="text-xl font-bold text-gray-800 border-b pb-4 mb-4">Reference Request Details</h3>
 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <p><strong class="font-semibold">Reference Type:</strong> {{ ucfirst($request->reference_type) }}</p>
+                        <p><strong class="font-semibold">Request Type:</strong> {{ ucfirst($request->request_type) }}</p>
+
+                        <p><strong class="font-semibold">Status:</strong>
+                            <span class="capitalize {{ $request->status == 'pending' ? 'text-yellow-800' : ($request->status == 'lecturer approved' ? 'text-green-600' : 'text-green-800') }}">
+                                {{ ucfirst($request->status) }}
+                            </span>
+                        </p>
+                        <p><strong class="font-semibold">Description:</strong> {{ $request->reference_description }}</p>
                     </div>
                 </div>
+            </div>
+
+            @if($request->document_path)
+            <div class="bg-white shadow-lg sm:rounded-lg p-6 mb-8">
+                <h4 class="text-lg font-semibold text-gray-800 mb-4">Uploaded Reference Document</h4>
+                <ul class="list-disc list-inside">
+                    <li>
+                        <a href="{{ asset('storage/' . $request->document_path) }}" target="_blank" class="text-blue-600 hover:underline">
+                            Download Document
+                        </a>
+                    </li>
+                </ul>
+                @if(in_array($request->status, ['document_uploaded', 'lecturer completed']))
+                    <form action="{{ route('student.reference.mark_completed', $request->id) }}" method="GET" class="mt-4">
+                        <button type="submit" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded">
+                            Mark as Completed
+                        </button>
+                    </form>
+                @endif
+            </div>
+            @else
+                @if(in_array($request->status, ['document_uploaded', 'lecturer completed']))
+                    <div class="bg-white shadow-lg sm:rounded-lg p-6 mb-8">
+                        <form action="{{ route('student.reference.mark_completed', $request->id) }}" method="GET">
+                            <button type="submit" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded">
+                                Mark as Completed
+                            </button>
+                        </form>
+                    </div>
+                @endif
             @endif
+
+            <!-- Institution Attended -->
+            <div class="bg-white shadow-lg sm:rounded-lg p-6 mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-lg font-semibold text-gray-800">Institution Attended</h4>
+                </div>
+                <p>{{ $request->student->institution_attended }}</p>
+            </div>
 
             @if($request->status == 'lecturer declined')
                 <div class="bg-white shadow-lg sm:rounded-lg p-6">

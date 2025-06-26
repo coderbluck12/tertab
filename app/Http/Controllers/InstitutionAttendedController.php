@@ -33,7 +33,7 @@ class InstitutionAttendedController extends Controller
             'position' => 'nullable|string',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'documents.*' => 'file|mimes:pdf,jpg,png|max:2048'
+            'documents.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx|max:2048'
         ]);
 
         $institutionAttended = InstitutionAttended::create([

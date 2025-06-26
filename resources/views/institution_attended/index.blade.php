@@ -18,6 +18,7 @@
 
                 <!-- Left Column: Institution List -->
                 <div class="bg-white shadow-sm rounded-lg p-6">
+                    <p class="text-sm text-green-500 mb-4">Note: You can add more than one institution</p>
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Uploaded Institutions</h3>
 
                     @if($institutions->isEmpty())
@@ -286,8 +287,38 @@
 
                         <!-- Supporting Documents -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Proof of Enrolment/Employment</label>
-                            <input type="file" name="documents[]" multiple class="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Proof of Enrolment/Employment</label>
+                            
+                            <!-- File Upload Area -->
+                            <div class="relative">
+                                <input type="file" name="documents[]" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" 
+                                       id="document-upload" 
+                                       class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <div class="mt-4">
+                                        <p class="text-sm font-medium text-gray-700">
+                                            <span class="text-blue-600 hover:text-blue-500">Click to upload</span> or drag and drop
+                                        </p>
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            PDF, JPG, JPEG, PNG, DOC, DOCX (max 2MB each)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Selected Files Display -->
+                            <div id="selected-files" class="mt-3 space-y-2 hidden">
+                                <p class="text-sm font-medium text-gray-700">Selected Files:</p>
+                                <div id="file-list" class="space-y-2"></div>
+                            </div>
+                            
+                            <p class="mt-2 text-sm text-gray-500">
+                                You can upload multiple documents. Supported formats: PDF, JPG, JPEG, PNG, DOC, DOCX. 
+                                Maximum file size: 2MB per file.
+                            </p>
                         </div>
 
                         <!-- Submit Button -->
@@ -321,7 +352,7 @@
                 institutionSelect.innerHTML = '<option value="">Select Institution</option>';
                 
                 // Construct URL with correct path
-                const baseUrl = '/institutions-by-state';
+                const baseUrl = '/tertab/public/institutions-by-state';
                 const url = stateId ? `${baseUrl}/${stateId}` : baseUrl;
                 
                 console.log('Fetching institutions from:', url);
@@ -362,6 +393,130 @@
                 const stateId = this.value;
                 loadInstitutions(stateId);
             });
+        });
+    </script>
+
+    <!-- JavaScript for File Upload -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('document-upload');
+            const selectedFilesDiv = document.getElementById('selected-files');
+            const fileListDiv = document.getElementById('file-list');
+            const uploadArea = fileInput.parentElement.querySelector('.border-dashed');
+            
+            if (!fileInput) return;
+            
+            // Handle file selection
+            fileInput.addEventListener('change', function(e) {
+                displaySelectedFiles(e.target.files);
+            });
+            
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('border-blue-400', 'bg-blue-50');
+            });
+            
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('border-blue-400', 'bg-blue-50');
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('border-blue-400', 'bg-blue-50');
+                
+                const files = e.dataTransfer.files;
+                fileInput.files = files;
+                displaySelectedFiles(files);
+            });
+            
+            function displaySelectedFiles(files) {
+                if (files.length === 0) {
+                    selectedFilesDiv.classList.add('hidden');
+                    return;
+                }
+                
+                fileListDiv.innerHTML = '';
+                selectedFilesDiv.classList.remove('hidden');
+                
+                Array.from(files).forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg border';
+                    
+                    const fileInfo = document.createElement('div');
+                    fileInfo.className = 'flex items-center space-x-3';
+                    
+                    // File icon based on type
+                    const icon = document.createElement('div');
+                    icon.className = 'flex-shrink-0';
+                    icon.innerHTML = getFileIcon(file.type);
+                    
+                    const fileDetails = document.createElement('div');
+                    fileDetails.className = 'flex-1 min-w-0';
+                    
+                    const fileName = document.createElement('p');
+                    fileName.className = 'text-sm font-medium text-gray-700 truncate';
+                    fileName.textContent = file.name;
+                    
+                    const fileSize = document.createElement('p');
+                    fileSize.className = 'text-xs text-gray-500';
+                    fileSize.textContent = formatFileSize(file.size);
+                    
+                    fileDetails.appendChild(fileName);
+                    fileDetails.appendChild(fileSize);
+                    
+                    fileInfo.appendChild(icon);
+                    fileInfo.appendChild(fileDetails);
+                    
+                    // Remove button
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'text-red-500 hover:text-red-700 text-sm font-medium';
+                    removeBtn.textContent = 'Remove';
+                    removeBtn.onclick = function() {
+                        removeFile(index);
+                    };
+                    
+                    fileItem.appendChild(fileInfo);
+                    fileItem.appendChild(removeBtn);
+                    fileListDiv.appendChild(fileItem);
+                });
+            }
+            
+            function removeFile(index) {
+                const dt = new DataTransfer();
+                const files = fileInput.files;
+                
+                for (let i = 0; i < files.length; i++) {
+                    if (i !== index) {
+                        dt.items.add(files[i]);
+                    }
+                }
+                
+                fileInput.files = dt.files;
+                displaySelectedFiles(dt.files);
+            }
+            
+            function getFileIcon(mimeType) {
+                if (mimeType.includes('pdf')) {
+                    return '<svg class="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path d="M4 18h12V6l-4-4H4v16zm2-2V4h6v2H6v12z"/></svg>';
+                } else if (mimeType.includes('image')) {
+                    return '<svg class="w-8 h-8 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/></svg>';
+                } else if (mimeType.includes('word') || mimeType.includes('document')) {
+                    return '<svg class="w-8 h-8 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path d="M4 18h12V6l-4-4H4v16zm2-2V4h6v2H6v12z"/></svg>';
+                } else {
+                    return '<svg class="w-8 h-8 text-gray-500" fill="currentColor" viewBox="0 0 20 20"><path d="M4 18h12V6l-4-4H4v16zm2-2V4h6v2H6v12z"/></svg>';
+                }
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
         });
     </script>
 @endsection

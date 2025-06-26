@@ -108,70 +108,84 @@
             <div class="bg-white shadow-lg sm:rounded-lg p-6">
                 <h4 class="text-lg font-semibold text-gray-800 mb-4">Actions</h4>
                 <div class="flex gap-4">
-                    <!-- Approve Request Form -->
-                    <form action="{{ route('lecturer.reference.approve', $request->id) }}" method="POST">
-                        @csrf
-                        @method('PATCH')
-                        <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-md shadow-sm hover:bg-green-600">
-                            Approve Request
-                        </button>
-                    </form>
+                    @if($request->status == 'pending')
+                        <!-- Approve Request Form -->
+                        <form action="{{ route('lecturer.reference.approve', $request->id) }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-md shadow-sm hover:bg-green-600">
+                                Approve Request
+                            </button>
+                        </form>
 
-                    @if($request->status == 'lecturer approved')
-                        @if($request->reference_type == 'email')
+                        <!-- Reject Request Button -->
+                        <button x-data @click="$dispatch('open-modal', 'reject-modal-{{ $request->id }}')" class="px-4 py-2 bg-red-500 text-white rounded-md shadow-sm hover:bg-red-600">
+                            Reject Request
+                        </button>
+                    @endif
+
+                    @if(in_array($request->status, ['lecturer approved', 'document_uploaded']))
+                        @if($request->reference_type == 'email' && $request->status == 'lecturer approved')
                             <form action="{{ route('lecturer.reference.confirm_email_sent', $request->id) }}" method="POST">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" class="px-4 py-2 bg-blue-800 text-white rounded-md shadow-sm hover:bg-gray-400">
                                     Confirm Email Sent
                                 </button>
-
                             </form>
                         @endif
-                            <form action="{{ route('lecturer.reference.confirm_completed', $request->id) }}" method="POST">
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit" class="px-4 py-2 bg-gray-800 text-white rounded-md shadow-sm hover:bg-gray-400">
-                                    Confirm Completed
-                                </button>
-                            </form>
+                        <form action="{{ route('lecturer.reference.confirm_completed', $request->id) }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="px-4 py-2 bg-gray-800 text-white rounded-md shadow-sm hover:bg-gray-400">
+                                Confirm Completed
+                            </button>
+                        </form>
                     @endif
-
-                    <!-- Reject Request Form with Reason -->
-                    <div x-data="{ showModal: false }">
-                        <!-- Reject Request Button -->
-                        <button @click="showModal = true" class="px-4 py-2 bg-red-500 text-white rounded-md shadow-sm hover:bg-red-600">
-                            Reject Request
-                        </button>
-
-                        <!-- Modal -->
-                        <div x-show="showModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-                                <h2 class="text-lg font-semibold text-gray-800 mb-4">Reject Request</h2>
-
-                                <form action="{{ route('lecturer.reference.reject', $request->id) }}" method="POST">
-                                    @csrf
-                                    @method('PATCH')
-                                    <label for="reference_rejection_reason" class="block text-gray-700 font-semibold mb-2">Reason for Rejection:</label>
-                                    <textarea id="reference_rejection_reason" name="reference_rejection_reason" class="w-full p-2 border border-gray-300 rounded-md" rows="3" placeholder="Enter rejection reason..." required></textarea>
-
-                                    <div class="flex justify-end mt-4 gap-4">
-                                        <!-- Cancel Button -->
-                                        <button @click="showModal = false" type="button" class="px-4 py-2 bg-gray-400 text-white rounded-md shadow-sm hover:bg-gray-500">
-                                            Cancel
-                                        </button>
-                                        <!-- Submit Button -->
-                                        <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-md shadow-sm hover:bg-red-600">
-                                            Submit Rejection
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
+
+            <!-- Reject Modal -->
+            @if($request->status == 'pending')
+            <x-modal name="reject-modal-{{ $request->id }}" :show="$errors->reject->isNotEmpty()" focusable>
+                <form method="post" action="{{ route('lecturer.reference.reject', $request->id) }}" class="p-6">
+                    @csrf
+                    @method('patch')
+
+                    <h2 class="text-lg font-medium text-gray-900">
+                        {{ __('Are you sure you want to reject this reference request?') }}
+                    </h2>
+
+                    <p class="mt-1 text-sm text-gray-600">
+                        {{ __('Please provide a reason for rejecting this request. This will be sent to the student.') }}
+                    </p>
+
+                    <div class="mt-6">
+                        <x-input-label for="reference_rejection_reason" value="{{ __('Rejection Reason') }}" class="sr-only" />
+
+                        <x-textarea
+                            id="reference_rejection_reason"
+                            name="reference_rejection_reason"
+                            class="mt-1 block w-full"
+                            placeholder="{{ __('Rejection Reason') }}"
+                            required
+                        ></x-textarea>
+
+                        <x-input-error :messages="$errors->reject->get('reference_rejection_reason')" class="mt-2" />
+                    </div>
+
+                    <div class="mt-6 flex justify-end">
+                        <x-secondary-button x-on:click="$dispatch('close')">
+                            {{ __('Cancel') }}
+                        </x-secondary-button>
+
+                        <x-danger-button class="ms-3">
+                            {{ __('Reject Request') }}
+                        </x-danger-button>
+                    </div>
+                </form>
+            </x-modal>
+            @endif
 
             @if($request->status == 'lecturer approved')
                 <div class="bg-white shadow-lg sm:rounded-lg p-6 mt-8">
@@ -182,6 +196,16 @@
                             Upload Document
                         @endif
                     </h4>
+
+                    @if($errors->any())
+                        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                            <ul>
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
 
                     <form action="{{ route('lecturer.reference.upload', $request->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
@@ -201,27 +225,27 @@
                 </div>
             @endif
 
-{{--            <div class="bg-white shadow-lg sm:rounded-lg p-6 mb-8">--}}
+            <div class="bg-white shadow-lg sm:rounded-lg p-6 mb-8">
 
-{{--                <div class="mt-4">--}}
-{{--                    <h5 class="text-md font-semibold text-gray-800">Uploaded Reference Documents</h5>--}}
-{{--                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">--}}
-{{--                        @if($reference_documents->isEmpty())--}}
-{{--                            <p>You are yet to upload/send a reference document.</p>--}}
-{{--                        @else--}}
-{{--                            @foreach($reference_documents as $document)--}}
-{{--                                <div class="bg-gray-100 p-4 rounded-lg shadow-sm">--}}
-{{--                                    <h6 class="text-sm font-semibold">{{ ucfirst($document->type) }}</h6>--}}
-{{--                                    <a href="{{ asset('storage/'.$document->path) }}" class="text-blue-500 hover:text-blue-700" target="_blank">--}}
-{{--                                        View Document--}}
-{{--                                    </a>--}}
-{{--                                </div>--}}
-{{--                            @endforeach--}}
-{{--                        @endif--}}
+                <div class="mt-4">
+                    <h5 class="text-md font-semibold text-gray-800">Uploaded Reference Documents</h5>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                        @if($reference_documents->isEmpty())
+                            <p>You are yet to upload/send a reference document.</p>
+                        @else
+                            @foreach($reference_documents as $document)
+                                <div class="bg-gray-100 p-4 rounded-lg shadow-sm">
+                                    <h6 class="text-sm font-semibold">{{ ucfirst($document->type) }}</h6>
+                                    <a href="{{ asset('storage/'.$document->path) }}" class="text-blue-500 hover:text-blue-700" target="_blank">
+                                        View Document
+                                    </a>
+                                </div>
+                            @endforeach
+                        @endif
 
-{{--                    </div>--}}
-{{--                </div>--}}
-{{--            </div>--}}
+                    </div>
+                </div>
+            </div>
 
         </div>
     </div>

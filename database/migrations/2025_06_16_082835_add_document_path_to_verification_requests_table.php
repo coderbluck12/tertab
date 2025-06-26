@@ -12,17 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('verification_requests', function (Blueprint $table) {
-            $table->string('document_path')->after('document_type');
+            if (!Schema::hasColumn('verification_requests', 'document_path')) {
+                $table->string('document_path')->after('document_type');
+            }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('verification_requests', function (Blueprint $table) {
-            $table->dropColumn('document_path');
+            if (Schema::hasColumn('verification_requests', 'document_path')) {
+                $table->dropColumn('document_path');
+            }
         });
     }
 }; 
