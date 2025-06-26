@@ -352,7 +352,7 @@
                 institutionSelect.innerHTML = '<option value="">Select Institution</option>';
                 
                 // Construct URL with correct path
-                const baseUrl = '/tertab/public/institutions-by-state';
+                const baseUrl = '/institutions-by-state';
                 const url = stateId ? `${baseUrl}/${stateId}` : baseUrl;
                 
                 console.log('Fetching institutions from:', url);
