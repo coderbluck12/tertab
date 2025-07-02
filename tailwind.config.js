@@ -18,4 +18,11 @@ export default {
     },
 
     plugins: [forms],
+
+    safelist: [
+        'bg-yellow-400',
+        'bg-yellow-100',
+        'text-yellow-900',
+        'text-yellow-800',
+    ],
 };
