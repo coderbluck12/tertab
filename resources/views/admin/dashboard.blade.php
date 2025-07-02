@@ -58,10 +58,10 @@
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm font-medium text-gray-900">
-                                            {{ $request->user->name }}
+                                            {{ $request->user ? $request->user->name : 'Unknown User' }}
                                         </div>
                                         <div class="text-sm text-gray-500">
-                                            {{ $request->user->email }}
+                                            {{ $request->user ? $request->user->email : '' }}
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
