@@ -18,6 +18,11 @@ class VerificationController extends Controller
 
     public function submit(Request $request)
     {
+        // Only allow students and lecturers
+        if (!in_array(auth()->user()->role, ['student', 'lecturer'])) {
+            return redirect()->back()->with('error', 'Only students and lecturers can submit verification requests.');
+        }
+
         try {
             $request->validate([
                 'document_type' => 'required|in:national_id,drivers_license,passport',
