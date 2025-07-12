@@ -37,9 +37,30 @@ class LecturerController extends Controller
             ->whereHas('attended', function ($query) use ($institution_id) {
                 $query->where('institution_id', $institution_id);
             })
-            ->with(['attended.institution', 'attended.state']) // Include institution and state relationships
+            ->with(['attended' => function ($query) use ($institution_id) {
+                $query->where('institution_id', $institution_id);
+            }, 'attended.institution', 'attended.state'])
             ->select('id', 'name', 'role', 'phone', 'email', 'address', 'status')
-            ->get();
+            ->get()
+            ->map(function ($lecturer) use ($institution_id) {
+                // Get only the specific institution data
+                $specificInstitution = $lecturer->attended->where('institution_id', $institution_id)->first();
+                
+                return [
+                    'id' => $lecturer->id,
+                    'name' => $lecturer->name,
+                    'role' => $lecturer->role,
+                    'phone' => $lecturer->phone,
+                    'email' => $lecturer->email,
+                    'address' => $lecturer->address,
+                    'status' => $lecturer->status,
+                    'institution' => $specificInstitution ? [
+                        'name' => $specificInstitution->institution->name,
+                        'position' => $specificInstitution->position,
+                        'state' => $specificInstitution->state ? $specificInstitution->state->name : null
+                    ] : null
+                ];
+            });
 
         return response()->json($lecturers);
     }

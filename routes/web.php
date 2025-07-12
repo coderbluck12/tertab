@@ -3,8 +3,10 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DisputeController;
+use App\Http\Controllers\DisputeDocumentController;
 use App\Http\Controllers\DisputeMessageController;
 use App\Http\Controllers\InstitutionAttendedController;
+use App\Http\Controllers\InstitutionEmailVerificationController;
 use App\Http\Controllers\InstitutionController;
 use App\Http\Controllers\LecturerController;
 use App\Http\Controllers\ProfileController;
@@ -59,6 +61,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Institution routes
     Route::get('/institution/attended', [InstitutionAttendedController::class, 'show'])->name('institution.attended.show');
     Route::post('/institution/attended', [InstitutionAttendedController::class, 'store'])->name('institution.attended.store');
+    Route::delete('/institution/attended/{institutionAttended}', [InstitutionAttendedController::class, 'destroy'])->name('institution.attended.destroy');
+    
+    // Institution email verification routes
+    Route::post('/institution/{institution}/verification/send', [InstitutionEmailVerificationController::class, 'sendVerificationEmail'])->name('institution.verification.send');
+    Route::get('/institution/verify/{token}', [InstitutionEmailVerificationController::class, 'verify'])->name('institution.verification.verify');
 
     // Dispute routes
     Route::get('/disputes', [DisputeController::class, 'index'])->name('disputes.index');
@@ -68,6 +75,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/disputes/{dispute}/messages', [DisputeMessageController::class, 'store'])->name('disputes.messages.send');
     Route::put('/disputes/{dispute}/resolve', [DisputeController::class, 'resolve'])->name('disputes.resolve');
     Route::put('/disputes/{dispute}/open', [DisputeController::class, 'open'])->name('disputes.open');
+    
+    // Dispute document routes
+    Route::post('/disputes/{dispute}/documents', [DisputeDocumentController::class, 'store'])->name('disputes.documents.store');
+    Route::get('/disputes/documents/{document}/download', [DisputeDocumentController::class, 'download'])->name('disputes.documents.download');
 
     // Notification routes
     Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');

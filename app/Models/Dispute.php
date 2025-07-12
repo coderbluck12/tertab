@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Dispute extends Model
 {
@@ -14,6 +15,11 @@ class Dispute extends Model
     public function messages()
     {
         return $this->hasMany(DisputeMessage::class);
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(DisputeDocument::class);
     }
 
     public function reference()

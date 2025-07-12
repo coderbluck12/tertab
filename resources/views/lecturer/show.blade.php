@@ -21,6 +21,7 @@
                     </span>
                     </p>
                     <p><strong class="font-semibold">Description:</strong> {{ $request->reference_description }}</p>
+                    <p><strong class="font-semibold">Student Email:</strong> <span class="text-blue-600">{{ $request->student->email }}</span></p>
                 </div>
             </div>
 

@@ -15,8 +15,56 @@
                         </span>
                     </p>
 
+                    <!-- Uploaded Documents -->
+                    <div class="mt-6">
+                        <h4 class="text-md font-semibold">Uploaded Documents</h4>
+                        <div class="border rounded p-4 bg-gray-50 mt-2">
+                            @forelse($documents as $document)
+                                <div class="flex items-center justify-between mb-2 p-2 bg-white rounded border">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="text-blue-600">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-900">{{ $document->original_name }}</p>
+                                            <p class="text-sm text-gray-500">Uploaded by {{ $document->user->name }} on {{ $document->created_at->format('M d, Y h:i A') }}</p>
+                                        </div>
+                                    </div>
+                                    <a href="{{ route('disputes.documents.download', $document->id) }}" 
+                                       class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm">
+                                        Download
+                                    </a>
+                                </div>
+                            @empty
+                                <p class="text-gray-500">No documents uploaded yet.</p>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <!-- Document Upload Form -->
+                    @if($dispute->status === 'open')
+                        <div class="mt-6">
+                            <h4 class="text-md font-semibold">Upload Document</h4>
+                            <form method="POST" action="{{ route('disputes.documents.store', $dispute->id) }}" 
+                                  enctype="multipart/form-data" class="mt-2">
+                                @csrf
+                                <div class="mb-4">
+                                    <label for="document" class="block text-sm font-medium text-gray-700">Select Document</label>
+                                    <input type="file" id="document" name="document" 
+                                           class="w-full p-2 border rounded mt-1" 
+                                           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt" required>
+                                    <p class="text-sm text-gray-500 mt-1">Accepted formats: PDF, DOC, DOCX, JPG, JPEG, PNG, TXT (Max 10MB)</p>
+                                    <x-input-error :messages="$errors->get('document')" class="mt-2" />
+                                </div>
+                                <x-primary-button>Upload Document</x-primary-button>
+                            </form>
+                        </div>
+                    @endif
+
                     <!-- Messages -->
-                    <div class="mt-4">
+                    <div class="mt-6">
                         <h4 class="text-md font-semibold">Discussion</h4>
                         <div class="border rounded p-4 bg-gray-100 mt-2">
                             @forelse($messages as $message)

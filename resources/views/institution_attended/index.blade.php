@@ -14,6 +14,18 @@
                     }, 5000); // Hide after 5 seconds
                 </script>
             @endif
+
+            @if(session('error'))
+                <div id="error-message" class="bg-red-500 text-white p-4 rounded-md shadow-md mb-4">
+                    {{ session('error') }}
+                </div>
+
+                <script>
+                    setTimeout(() => {
+                        document.getElementById('error-message').style.display = 'none';
+                    }, 5000); // Hide after 5 seconds
+                </script>
+            @endif
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                 <!-- Left Column: Institution List -->
@@ -65,20 +77,54 @@
                                                 @endcan
                                                 @can('provide-a-reference')
                                                     <p class="text-sm text-gray-600">{{ ucfirst($institution->position) }}</p>
+                                                    @if($institution->type === 'lecturer')
+                                                        <div class="mt-2">
+                                                            @if($institution->isVerified())
+                                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                                                    </svg>
+                                                                    Verified
+                                                                </span>
+                                                            @elseif($institution->isPending())
+                                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                                                                    </svg>
+                                                                    Pending Verification
+                                                                </span>
+                                                                <div class="mt-1">
+                                                                    <form method="POST" action="{{ route('institution.verification.send', $institution->id) }}" class="inline">
+                                                                        @csrf
+                                                                        <button type="submit" class="text-blue-600 text-xs hover:underline">
+                                                                            Resend verification email
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                    @endif
                                                 @endcan
                                             </div>
 
-                                            <!-- View Button -->
-{{--                                            <button onclick="showInstitutionDetails({{ $institution->id }})"--}}
-{{--                                                    class="text-indigo-600 text-sm font-medium hover:underline">--}}
-{{--                                                View--}}
-{{--                                            </button>--}}
-
-                                            <!-- View Button -->
-{{--                                            <button @click="institution = {{ $institution->toJson() }}; open = true"--}}
-{{--                                                    class="text-indigo-600 text-sm font-medium hover:underline">--}}
-{{--                                                View--}}
-{{--                                            </button>--}}
+                                            <!-- Action Buttons -->
+                                            <div class="flex items-center space-x-2">
+                                                <!-- Delete Button -->
+                                                <form method="POST" action="{{ route('institution.attended.destroy', $institution->id) }}" 
+                                                      onsubmit="return confirm('Are you sure you want to delete this institution? This action cannot be undone.')" 
+                                                      class="inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" 
+                                                            class="text-red-600 hover:text-red-800 text-sm font-medium flex items-center gap-1"
+                                                            title="Delete Institution">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                        </svg>
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </div>
 
                                         <!-- Supporting Documents -->
@@ -273,6 +319,20 @@
                             </div>
                         </div>
 
+                        <!-- School Email for Lecturers -->
+                        @can('provide-a-reference')
+                        <div>
+                            <label for="school_email" class="block text-sm font-medium text-gray-700">School Email Address</label>
+                            <input type="email" id="school_email" name="school_email" 
+                                   class="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500" 
+                                   placeholder="your.email@university.edu"
+                                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.(edu|edu\.ng)$"
+                                   title="Please enter a valid .edu or .edu.ng email address">
+                            <p class="text-sm text-gray-500 mt-1">Please use your official school email address (.edu or .edu.ng domain)</p>
+                            <x-input-error :messages="$errors->get('school_email')" class="mt-2" />
+                        </div>
+                        @endcan
+
                         <!-- Duration -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
@@ -408,7 +468,7 @@
             
             // Handle file selection
             fileInput.addEventListener('change', function(e) {
-                displaySelectedFiles(e.target.files);
+                displaySelectedFiles(Array.from(e.target.files));
             });
             
             // Drag and drop functionality
@@ -426,9 +486,9 @@
                 e.preventDefault();
                 uploadArea.classList.remove('border-blue-400', 'bg-blue-50');
                 
-                const files = e.dataTransfer.files;
-                fileInput.files = files;
-                displaySelectedFiles(files);
+                const droppedFiles = Array.from(e.dataTransfer.files);
+                fileInput.files = e.dataTransfer.files;
+                displaySelectedFiles(droppedFiles);
             });
             
             function displaySelectedFiles(files) {
@@ -440,7 +500,7 @@
                 fileListDiv.innerHTML = '';
                 selectedFilesDiv.classList.remove('hidden');
                 
-                Array.from(files).forEach((file, index) => {
+                files.forEach((file, index) => {
                     const fileItem = document.createElement('div');
                     fileItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg border';
                     
@@ -469,33 +529,9 @@
                     fileInfo.appendChild(icon);
                     fileInfo.appendChild(fileDetails);
                     
-                    // Remove button
-                    const removeBtn = document.createElement('button');
-                    removeBtn.type = 'button';
-                    removeBtn.className = 'text-red-500 hover:text-red-700 text-sm font-medium';
-                    removeBtn.textContent = 'Remove';
-                    removeBtn.onclick = function() {
-                        removeFile(index);
-                    };
-                    
                     fileItem.appendChild(fileInfo);
-                    fileItem.appendChild(removeBtn);
                     fileListDiv.appendChild(fileItem);
                 });
-            }
-            
-            function removeFile(index) {
-                const dt = new DataTransfer();
-                const files = fileInput.files;
-                
-                for (let i = 0; i < files.length; i++) {
-                    if (i !== index) {
-                        dt.items.add(files[i]);
-                    }
-                }
-                
-                fileInput.files = dt.files;
-                displaySelectedFiles(dt.files);
             }
             
             function getFileIcon(mimeType) {

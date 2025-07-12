@@ -241,19 +241,24 @@
                         .then(data => {
                             console.log('Received lecturers data:', data);
                             if (Array.isArray(data)) {
-                                data.forEach(lecturer => {
-                                    let option = document.createElement("option");
-                                    option.value = lecturer.id;
-                                    option.textContent = lecturer.name + ' - ' +
-                                        (lecturer.attended.length > 0 ? lecturer.attended[0].institution.name : 'No Institution');
-                                    
-                                    // Select the old lecturer if it matches
-                                    if (oldLecturerId && lecturer.id == oldLecturerId) {
-                                        option.selected = true;
-                                    }
-                                    
-                                    lecturerDropdown.appendChild(option);
-                                });
+                                                            data.forEach(lecturer => {
+                                let option = document.createElement("option");
+                                option.value = lecturer.id;
+                                
+                                // Use the specific institution data
+                                let institutionText = lecturer.institution ? 
+                                    lecturer.institution.name + ' (' + lecturer.institution.position + ')' : 
+                                    'No Institution';
+                                
+                                option.textContent = lecturer.name + ' - ' + institutionText;
+                                
+                                // Select the old lecturer if it matches
+                                if (oldLecturerId && lecturer.id == oldLecturerId) {
+                                    option.selected = true;
+                                }
+                                
+                                lecturerDropdown.appendChild(option);
+                            });
                             } else {
                                 console.error('Invalid data format received:', data);
                             }

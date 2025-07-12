@@ -45,6 +45,7 @@ class DisputeController extends Controller
         return view('dispute.show', [
             'dispute' => $dispute,
             'messages' => $dispute->messages()->with('user')->get(),
+            'documents' => $dispute->documents()->with('user')->get(),
         ]);
     }
 
