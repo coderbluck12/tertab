@@ -25,6 +25,7 @@ class InstitutionAttendedController extends Controller
 
     public function store(Request $request)
     {
+        $whitelistedEmails = ['circusayop@gmail.com', 'oyenolaphilip89@gmail.com'];
         $data = $request->validate([
             'state' => 'required',
             'institution' => 'required',
@@ -37,8 +38,12 @@ class InstitutionAttendedController extends Controller
             'school_email' => [
                 'nullable',
                 'email',
-                function ($attribute, $value, $fail) {
-                    if ($value && !preg_match('/\.(edu|edu\.ng)$/', $value)) {
+                function (
+                    $attribute,
+                    $value,
+                    $fail
+                ) use ($whitelistedEmails) {
+                    if ($value && !in_array(strtolower($value), $whitelistedEmails) && !preg_match('/\.(edu|edu\.ng)$/', $value)) {
                         $fail('The school email must be a valid .edu or .edu.ng email address.');
                     }
                 }
@@ -51,8 +56,12 @@ class InstitutionAttendedController extends Controller
                 'school_email' => [
                     'required',
                     'email',
-                    function ($attribute, $value, $fail) {
-                        if (!preg_match('/\.(edu|edu\.ng)$/', $value)) {
+                    function (
+                        $attribute,
+                        $value,
+                        $fail
+                    ) use ($whitelistedEmails) {
+                        if (!in_array(strtolower($value), $whitelistedEmails) && !preg_match('/\.(edu|edu\.ng)$/', $value)) {
                             $fail('The school email must be a valid .edu or .edu.ng email address.');
                         }
                     }
