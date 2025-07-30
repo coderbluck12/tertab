@@ -419,4 +419,74 @@ class ReferenceController extends Controller
         return redirect()->route('student.dashboard')->with('success', 'Reference request confirmed and payment processed successfully.');
     }
 
+    /**
+     * Send a message from lecturer to student regarding a reference request
+     */
+    public function sendMessage(Request $request, $id)
+    {
+        $reference = Reference::findOrFail($id);
+        
+        // Check if the current user is the lecturer for this reference
+        if (auth()->id() !== $reference->lecturer_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $request->validate([
+            'message' => 'required|string|max:1000'
+        ]);
+
+        // Create the message
+        $message = \App\Models\ReferenceMessage::create([
+            'reference_id' => $reference->id,
+            'sender_id' => auth()->id(),
+            'message' => $request->message
+        ]);
+
+        // Send notification to student (you can implement email notification here if needed)
+        $this->notificationService->send(
+            $reference->student_id,
+            'message',
+            'New message from lecturer',
+            "You have received a new message from {$reference->lecturer->name} regarding your reference request.",
+            route('student.reference.show', $reference->id)
+        );
+
+        return redirect()->back()->with('success', 'Message sent successfully!');
+    }
+
+    /**
+     * Send message from student to lecturer
+     */
+    public function sendStudentMessage(Request $request, $id)
+    {
+        $request->validate([
+            'message' => 'required|string|max:1000'
+        ]);
+
+        $reference = Reference::findOrFail($id);
+        
+        // Ensure the student can only send messages for their own references
+        if ($reference->student_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Create the message
+        \App\Models\ReferenceMessage::create([
+            'reference_id' => $reference->id,
+            'sender_id' => auth()->id(),
+            'message' => $request->message
+        ]);
+
+        // Send notification to lecturer
+        $this->notificationService->send(
+            $reference->lecturer_id,
+            'message',
+            'New message from student',
+            "You have received a new message from {$reference->student->name} regarding their reference request.",
+            route('lecturer.reference.show', $reference->id)
+        );
+
+        return redirect()->back()->with('success', 'Message sent successfully!');
+    }
+
 }

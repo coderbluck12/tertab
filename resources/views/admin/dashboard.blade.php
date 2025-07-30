@@ -15,6 +15,29 @@
                 </script>
             @endif
 
+            <!-- Admin Navigation Links -->
+            <div class="bg-white shadow-sm rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Admin Management</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <a href="{{ route('admin.institutions.index') }}" class="bg-blue-600 text-white p-4 rounded-lg text-center hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-university text-2xl mb-2"></i>
+                        <p class="font-medium">Manage Institutions</p>
+                    </a>
+                    <a href="{{ route('admin.platform.settings') }}" class="bg-green-600 text-white p-4 rounded-lg text-center hover:bg-green-700 transition-colors">
+                        <i class="fas fa-cogs text-2xl mb-2"></i>
+                        <p class="font-medium">Platform Settings</p>
+                    </a>
+                    <a href="{{ route('admin.students') }}" class="bg-purple-600 text-white p-4 rounded-lg text-center hover:bg-purple-700 transition-colors">
+                        <i class="fas fa-users text-2xl mb-2"></i>
+                        <p class="font-medium">Manage Students</p>
+                    </a>
+                    <a href="{{ route('admin.lecturers') }}" class="bg-orange-600 text-white p-4 rounded-lg text-center hover:bg-orange-700 transition-colors">
+                        <i class="fas fa-user-tie text-2xl mb-2"></i>
+                        <p class="font-medium">Manage Lecturers</p>
+                    </a>
+                </div>
+            </div>
+
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                 <x-stat-card title="Total Lecturers" count="{{ $adminStats['lecturers'] ?? 0 }}" color="blue" icon="fas fa-user-tie" />

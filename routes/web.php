@@ -44,6 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/student/reference/{id}/edit', [ReferenceController::class, 'edit'])->name('student.reference.edit');
     Route::put('/student/reference/{id}', [ReferenceController::class, 'update'])->name('student.reference.update');
     Route::get('/student/reference/{id}', [StudentController::class, 'show'])->name('student.reference.show');
+    Route::post('/student/reference/{id}/message', [ReferenceController::class, 'sendStudentMessage'])->name('student.reference.message');
     Route::get('reference/{id}/confirm_completed', [ReferenceController::class, 'mark_completed'])->name('student.reference.mark_completed');
 
     // Lecturer routes
@@ -56,12 +57,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('reference/{id}/confirm_completed', [ReferenceController::class, 'confirm_completed'])->name('lecturer.reference.confirm_completed');
     Route::get('/lecturer/reference/{id}', [LecturerController::class, 'show'])->name('lecturer.reference.show');
     Route::post('/lecturer/reference/{id}/upload', [ReferenceController::class, 'upload'])->name('lecturer.reference.upload');
+    Route::post('/lecturer/reference/{id}/message', [ReferenceController::class, 'sendMessage'])->name('lecturer.reference.message');
     Route::get('/lecturer/institution', [InstitutionAttendedController::class, 'index'])->name('lecturer.institution.index');
 
     // Institution routes
     Route::get('/institution/attended', [InstitutionAttendedController::class, 'show'])->name('institution.attended.show');
     Route::post('/institution/attended', [InstitutionAttendedController::class, 'store'])->name('institution.attended.store');
+    Route::get('/institution/attended/{institutionAttended}/edit', [InstitutionAttendedController::class, 'edit'])->name('institution.attended.edit');
+    Route::put('/institution/attended/{institutionAttended}', [InstitutionAttendedController::class, 'update'])->name('institution.attended.update');
     Route::delete('/institution/attended/{institutionAttended}', [InstitutionAttendedController::class, 'destroy'])->name('institution.attended.destroy');
+    Route::delete('/institution/attended/{institutionAttended}/document/{document}', [InstitutionAttendedController::class, 'deleteDocument'])->name('institution.attended.document.delete');
     
     // Institution email verification routes
     Route::post('/institution/{institution}/verification/send', [InstitutionEmailVerificationController::class, 'sendVerificationEmail'])->name('institution.verification.send');
@@ -98,7 +103,19 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(fu
     Route::patch('reference/{id}/reject', [ReferenceController::class, 'reject'])->name('admin.reference.reject');
     Route::post('reference/{id}/upload', [ReferenceController::class, 'upload'])->name('admin.reference.upload');
     Route::get('/settings', [PlatfromSettingsController::class, 'index'])->name('admin.platform.settings');
-    Route::patch('/settings', [PlatfromSettingsController::class, 'update'])->name('admin.platform.settings.update');
+    Route::post('/settings', [PlatfromSettingsController::class, 'update'])->name('admin.platform.settings.update');
+    
+    // Institution management
+    Route::get('/institutions', [AdminController::class, 'institutions'])->name('admin.institutions.index');
+    Route::post('/institutions', [AdminController::class, 'storeInstitution'])->name('admin.institutions.store');
+    Route::put('/institutions/{institution}', [AdminController::class, 'updateInstitution'])->name('admin.institutions.update');
+    Route::delete('/institutions/{institution}', [AdminController::class, 'destroyInstitution'])->name('admin.institutions.destroy');
+    
+    // Course management
+    Route::get('/courses', [AdminController::class, 'courses'])->name('admin.courses.index');
+    Route::post('/courses', [AdminController::class, 'storeCourse'])->name('admin.courses.store');
+    Route::delete('/courses/{course}', [AdminController::class, 'destroyCourse'])->name('admin.courses.destroy');
+    
     Route::get('/students', [AdminController::class, 'students'])->name('admin.students');
     Route::get('/lecturers', [AdminController::class, 'lecturers'])->name('admin.lecturers');
     Route::get('/user/{id}', [AdminController::class, 'showUser'])->name('admin.user.show');

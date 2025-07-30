@@ -208,4 +208,102 @@ dd($request);
         return view('admin.verification-requests', compact('verificationRequests'));
     }
 
+    /**
+     * Display institutions for admin management
+     */
+    public function institutions()
+    {
+        // Load states for the form dropdown
+        $states = \App\Models\State::all();
+        
+        // Return view without institutions - they will be loaded via AJAX from the API
+        return view('admin.institutions.index', compact('states'));
+    }
+
+    /**
+     * Store a new institution
+     */
+    public function storeInstitution(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'state_id' => 'required|exists:states,id',
+            'ownership' => 'required|string|max:255',
+        ]);
+
+        \App\Models\Institution::create([
+            'name' => $request->name,
+            'state_id' => $request->state_id,
+            'slug' => \Str::slug($request->name),
+            'ownership' => $request->ownership,
+        ]);
+
+        return redirect()->route('admin.institutions.index')
+            ->with('success', 'Institution created successfully.');
+    }
+
+    /**
+     * Update an existing institution
+     */
+    public function updateInstitution(Request $request, \App\Models\Institution $institution)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'state_id' => 'required|exists:states,id',
+            'ownership' => 'required|string|max:255',
+        ]);
+
+        $institution->update([
+            'name' => $request->name,
+            'state_id' => $request->state_id,
+            'slug' => \Str::slug($request->name),
+            'ownership' => $request->ownership,
+        ]);
+
+        return redirect()->route('admin.institutions.index')
+            ->with('success', 'Institution updated successfully.');
+    }
+
+    /**
+     * Delete an institution
+     */
+    public function destroyInstitution(\App\Models\Institution $institution)
+    {
+        $institution->delete();
+
+        return redirect()->route('admin.institutions.index')
+            ->with('success', 'Institution deleted successfully.');
+    }
+
+    /**
+     * Display courses for admin management
+     */
+    public function courses()
+    {
+        // Since Course model doesn't exist yet, return empty view for now
+        $courses = collect();
+        
+        return view('admin.courses', compact('courses'));
+    }
+
+    /**
+     * Store a new course
+     */
+    public function storeCourse(Request $request)
+    {
+        // Placeholder for when Course model is created
+        return redirect()->route('admin.courses.index')
+            ->with('info', 'Course management not yet implemented.');
+    }
+
+    /**
+     * Delete a course
+     */
+    public function destroyCourse($course)
+    {
+        // Placeholder for when Course model is created
+        return redirect()->route('admin.courses.index')
+            ->with('info', 'Course management not yet implemented.');
+    }
+
 }

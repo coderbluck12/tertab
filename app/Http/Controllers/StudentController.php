@@ -113,7 +113,7 @@ class StudentController extends Controller
      */
     public function show(string $id)
     {
-        $request = Reference::with(['student', 'lecturer', 'institution'])->findOrFail($id);
+        $request = Reference::with(['student', 'lecturer', 'institution', 'messages.sender'])->findOrFail($id);
 
         return view('student.show', compact('request'));
     }

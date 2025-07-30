@@ -41,5 +41,10 @@ class Reference extends Model
         return $this->hasMany(Dispute::class);
     }
 
+    public function messages()
+    {
+        return $this->hasMany(ReferenceMessage::class);
+    }
+
 }
 

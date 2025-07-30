@@ -71,12 +71,68 @@
                 @endif
             @endif
 
-            <!-- Institution Attended -->
+            <!-- Messaging Section -->
             <div class="bg-white shadow-lg sm:rounded-lg p-6 mb-8">
-                <div class="flex justify-between items-center mb-4">
-                    <h4 class="text-lg font-semibold text-gray-800">Institution Attended</h4>
-                </div>
-                <p>{{ $request->student->institution_attended }}</p>
+                <h4 class="text-lg font-semibold text-gray-800 mb-4">Communication with Lecturer</h4>
+                
+                @if(session('success'))
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                        {{ session('success') }}
+                    </div>
+                @endif
+                
+                <!-- Message Form -->
+                <form method="POST" action="{{ route('student.reference.message', $request->id) }}" class="mb-6">
+                    @csrf
+                    <div class="mb-4">
+                        <label for="message" class="block text-sm font-medium text-gray-700 mb-2">
+                            Send message to {{ $request->lecturer->name }}
+                        </label>
+                        <textarea name="message" id="message" rows="4" 
+                                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                  placeholder="Type your message here... (e.g., 'Thank you for your feedback' or 'I have a question about the requirements')" 
+                                  required>{{ old('message') }}</textarea>
+                        @error('message')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        Send Message
+                    </button>
+                </form>
+                
+                <!-- Message History -->
+                @if($request->messages && $request->messages->count() > 0)
+                    <div class="border-t pt-4">
+                        <h5 class="text-md font-semibold text-gray-800 mb-3">Message History</h5>
+                        <div class="space-y-3 max-h-60 overflow-y-auto">
+                            @foreach($request->messages->sortByDesc('created_at') as $message)
+                                <div class="bg-gray-50 p-4 rounded-lg border-l-4 {{ $message->sender_id === $request->lecturer_id ? 'border-blue-500' : 'border-green-500' }}">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <span class="text-sm font-medium text-gray-800">
+                                            {{ $message->sender->name }}
+                                            @if($message->sender_id === $request->lecturer_id)
+                                                <span class="text-xs text-blue-600">(Lecturer)</span>
+                                            @else
+                                                <span class="text-xs text-green-600">(You)</span>
+                                            @endif
+                                        </span>
+                                        <span class="text-xs text-gray-500">
+                                            {{ $message->created_at->format('M d, Y H:i') }}
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-gray-700">{{ $message->message }}</p>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <div class="border-t pt-4">
+                        <p class="text-gray-500 text-sm">No messages yet. Send a message to start the conversation.</p>
+                    </div>
+                @endif
             </div>
 
             @if($request->status == 'lecturer declined')

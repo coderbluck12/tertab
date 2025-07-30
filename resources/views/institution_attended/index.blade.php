@@ -109,6 +109,12 @@
 
                                             <!-- Action Buttons -->
                                             <div class="flex items-center space-x-2">
+                                                <!-- Edit Button -->
+                                                <a href="{{ route('institution.attended.edit', $institution->id) }}" 
+                                                   class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                                    Edit
+                                                </a>
+                                                
                                                 <!-- Delete Button -->
                                                 <form method="POST" action="{{ route('institution.attended.destroy', $institution->id) }}" 
                                                       onsubmit="return confirm('Are you sure you want to delete this institution? This action cannot be undone.')" 
@@ -261,6 +267,37 @@
 
                             <!-- Course or Position -->
                             <div>
+                                <div class="mb-4">
+                                <label for="field_of_study" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <span id="course-label">Course/Field of Study</span>
+                                </label>
+                                <select name="field_of_study" id="field_of_study" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Select Course</option>
+                                    <option value="Computer Science">Computer Science</option>
+                                    <option value="Engineering">Engineering</option>
+                                    <option value="Medicine">Medicine</option>
+                                    <option value="Law">Law</option>
+                                    <option value="Business Administration">Business Administration</option>
+                                    <option value="Economics">Economics</option>
+                                    <option value="Psychology">Psychology</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Mathematics">Mathematics</option>
+                                    <option value="Physics">Physics</option>
+                                    <option value="Chemistry">Chemistry</option>
+                                    <option value="Biology">Biology</option>
+                                    <option value="Accounting">Accounting</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                
+                                <!-- Custom course input (shown when "Other" is selected) -->
+                                <input type="text" id="custom_course" name="custom_field_of_study" 
+                                       class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2 hidden" 
+                                       placeholder="Enter your course/field of study">
+                                
+                                @error('field_of_study')
+                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
                                 @can('request-for-reference')
                                     <label for="field_of_study" class="block text-sm font-medium text-gray-700">Field of Study</label>
                                     <select id="field_of_study" name="field_of_study" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500">
@@ -412,7 +449,7 @@
                 institutionSelect.innerHTML = '<option value="">Select Institution</option>';
                 
                 // Construct URL with correct path
-                const baseUrl = '/institutions-by-state';
+                const baseUrl = '/tertab/public/institutions-by-state';
                 const url = stateId ? `${baseUrl}/${stateId}` : baseUrl;
                 
                 console.log('Fetching institutions from:', url);
@@ -466,9 +503,30 @@
             
             if (!fileInput) return;
             
+            // Maintain our own array of selected files to avoid duplication
+            let selectedFiles = [];
+            
             // Handle file selection
             fileInput.addEventListener('change', function(e) {
-                displaySelectedFiles(Array.from(e.target.files));
+                const newFiles = Array.from(e.target.files);
+                if (newFiles.length > 0) {
+                    // Add new files to our array, avoiding duplicates
+                    newFiles.forEach(newFile => {
+                        const isDuplicate = selectedFiles.some(existingFile => 
+                            existingFile.name === newFile.name && 
+                            existingFile.size === newFile.size && 
+                            existingFile.lastModified === newFile.lastModified
+                        );
+                        
+                        if (!isDuplicate) {
+                            selectedFiles.push(newFile);
+                        }
+                    });
+                    
+                    // Update the file input with our managed files
+                    updateFileInput();
+                    displaySelectedFiles(selectedFiles);
+                }
             });
             
             // Drag and drop functionality
@@ -487,9 +545,30 @@
                 uploadArea.classList.remove('border-blue-400', 'bg-blue-50');
                 
                 const droppedFiles = Array.from(e.dataTransfer.files);
-                fileInput.files = e.dataTransfer.files;
-                displaySelectedFiles(droppedFiles);
+                
+                // Add dropped files to our array, avoiding duplicates
+                droppedFiles.forEach(newFile => {
+                    const isDuplicate = selectedFiles.some(existingFile => 
+                        existingFile.name === newFile.name && 
+                        existingFile.size === newFile.size && 
+                        existingFile.lastModified === newFile.lastModified
+                    );
+                    
+                    if (!isDuplicate) {
+                        selectedFiles.push(newFile);
+                    }
+                });
+                
+                updateFileInput();
+                displaySelectedFiles(selectedFiles);
             });
+            
+            // Function to update the actual file input with our managed files
+            function updateFileInput() {
+                const dt = new DataTransfer();
+                selectedFiles.forEach(file => dt.items.add(file));
+                fileInput.files = dt.files;
+            }
             
             function displaySelectedFiles(files) {
                 if (files.length === 0) {
@@ -503,6 +582,7 @@
                 files.forEach((file, index) => {
                     const fileItem = document.createElement('div');
                     fileItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg border';
+                    fileItem.setAttribute('data-file-index', index);
                     
                     const fileInfo = document.createElement('div');
                     fileInfo.className = 'flex items-center space-x-3';
@@ -529,9 +609,30 @@
                     fileInfo.appendChild(icon);
                     fileInfo.appendChild(fileDetails);
                     
+                    // Add remove button
+                    const removeButton = document.createElement('button');
+                    removeButton.type = 'button';
+                    removeButton.className = 'text-red-600 hover:text-red-800 text-sm font-medium';
+                    removeButton.textContent = 'Remove';
+                    removeButton.onclick = function() {
+                        removeFile(index);
+                    };
+                    
                     fileItem.appendChild(fileInfo);
+                    fileItem.appendChild(removeButton);
                     fileListDiv.appendChild(fileItem);
                 });
+            }
+            
+            function removeFile(indexToRemove) {
+                // Remove file from our managed array
+                selectedFiles.splice(indexToRemove, 1);
+                
+                // Update the file input
+                updateFileInput();
+                
+                // Update display
+                displaySelectedFiles(selectedFiles);
             }
             
             function getFileIcon(mimeType) {
