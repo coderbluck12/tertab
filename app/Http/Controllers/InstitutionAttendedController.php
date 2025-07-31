@@ -188,15 +188,16 @@ class InstitutionAttendedController extends Controller
             abort(401, 'Authentication required.');
         }
         
-        // Check if user owns this institution
+        // Check if user owns this institution (both students and lecturers can edit institutions they added)
         if ($institutionAttended->user_id !== auth()->id()) {
             \Log::warning('Unauthorized institution edit attempt', [
                 'institution_id' => $institutionAttended->id,
                 'institution_owner_id' => $institutionAttended->user_id,
                 'current_user_id' => auth()->id(),
-                'current_user_email' => auth()->user()->email
+                'current_user_email' => auth()->user()->email,
+                'current_user_role' => auth()->user()->role
             ]);
-            abort(403, 'Unauthorized action. You can only edit institutions you own.');
+            abort(403, 'Unauthorized action. You can only edit institutions you added.');
         }
 
         $states = State::orderBy('name')->get();
@@ -220,15 +221,16 @@ class InstitutionAttendedController extends Controller
             abort(401, 'Authentication required.');
         }
         
-        // Check if user owns this institution
+        // Check if user owns this institution (both students and lecturers can edit institutions they added)
         if ($institutionAttended->user_id !== auth()->id()) {
             \Log::warning('Unauthorized institution update attempt', [
                 'institution_id' => $institutionAttended->id,
                 'institution_owner_id' => $institutionAttended->user_id,
                 'current_user_id' => auth()->id(),
-                'current_user_email' => auth()->user()->email
+                'current_user_email' => auth()->user()->email,
+                'current_user_role' => auth()->user()->role
             ]);
-            abort(403, 'Unauthorized action. You can only update institutions you own.');
+            abort(403, 'Unauthorized action. You can only update institutions you added.');
         }
 
         $whitelistedEmails = ['circusayop@gmail.com', 'oyenolaphilip89@gmail.com'];
