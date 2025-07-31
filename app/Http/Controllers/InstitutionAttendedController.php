@@ -336,7 +336,8 @@ class InstitutionAttendedController extends Controller
     public function deleteDocument(InstitutionAttended $institutionAttended, $documentId)
     {
         // Check if user owns this institution
-        if ($institutionAttended->user_id !== auth()->id()) {
+        // Using loose comparison (!=) to handle string/integer user_id differences
+        if ($institutionAttended->user_id != auth()->id()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -365,7 +366,8 @@ class InstitutionAttendedController extends Controller
     public function destroy(InstitutionAttended $institutionAttended)
     {
         // Check if user owns this institution
-        if ($institutionAttended->user_id !== auth()->id()) {
+        // Using loose comparison (!=) to handle string/integer user_id differences
+        if ($institutionAttended->user_id != auth()->id()) {
             abort(403, 'Unauthorized action.');
         }
 
