@@ -173,9 +173,30 @@ class InstitutionAttendedController extends Controller
 
     public function edit(InstitutionAttended $institutionAttended)
     {
+        // Debug logging for production troubleshooting
+        \Log::info('Institution Edit Access Attempt', [
+            'institution_id' => $institutionAttended->id,
+            'institution_user_id' => $institutionAttended->user_id,
+            'current_user_id' => auth()->id(),
+            'user_authenticated' => auth()->check(),
+            'user_email' => auth()->user()->email ?? 'not authenticated'
+        ]);
+        
+        // Check if user is authenticated
+        if (!auth()->check()) {
+            \Log::warning('User not authenticated when accessing institution edit');
+            abort(401, 'Authentication required.');
+        }
+        
         // Check if user owns this institution
         if ($institutionAttended->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized action.');
+            \Log::warning('Unauthorized institution edit attempt', [
+                'institution_id' => $institutionAttended->id,
+                'institution_owner_id' => $institutionAttended->user_id,
+                'current_user_id' => auth()->id(),
+                'current_user_email' => auth()->user()->email
+            ]);
+            abort(403, 'Unauthorized action. You can only edit institutions you own.');
         }
 
         $states = State::orderBy('name')->get();
@@ -184,9 +205,30 @@ class InstitutionAttendedController extends Controller
 
     public function update(Request $request, InstitutionAttended $institutionAttended)
     {
+        // Debug logging for production troubleshooting
+        \Log::info('Institution Update Access Attempt', [
+            'institution_id' => $institutionAttended->id,
+            'institution_user_id' => $institutionAttended->user_id,
+            'current_user_id' => auth()->id(),
+            'user_authenticated' => auth()->check(),
+            'user_email' => auth()->user()->email ?? 'not authenticated'
+        ]);
+        
+        // Check if user is authenticated
+        if (!auth()->check()) {
+            \Log::warning('User not authenticated when updating institution');
+            abort(401, 'Authentication required.');
+        }
+        
         // Check if user owns this institution
         if ($institutionAttended->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized action.');
+            \Log::warning('Unauthorized institution update attempt', [
+                'institution_id' => $institutionAttended->id,
+                'institution_owner_id' => $institutionAttended->user_id,
+                'current_user_id' => auth()->id(),
+                'current_user_email' => auth()->user()->email
+            ]);
+            abort(403, 'Unauthorized action. You can only update institutions you own.');
         }
 
         $whitelistedEmails = ['circusayop@gmail.com', 'oyenolaphilip89@gmail.com'];
