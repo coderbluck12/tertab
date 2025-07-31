@@ -193,22 +193,16 @@ class InstitutionAttendedController extends Controller
         }
         
         // Check if user owns this institution (both students and lecturers can edit institutions they added)
-        if ($institutionAttended->user_id !== auth()->id()) {
+        // Using loose comparison (==) to handle string/integer user_id differences
+        if ($institutionAttended->user_id != auth()->id()) {
             \Log::warning('Unauthorized institution edit attempt', [
                 'institution_id' => $institutionAttended->id,
                 'institution_owner_id' => $institutionAttended->user_id,
                 'current_user_id' => auth()->id(),
                 'current_user_email' => auth()->user()->email,
-                'current_user_role' => auth()->user()->role,
-                'institution_user_id_type' => gettype($institutionAttended->user_id),
-                'current_user_id_type' => gettype(auth()->id()),
-                'strict_comparison' => $institutionAttended->user_id === auth()->id(),
-                'loose_comparison' => $institutionAttended->user_id == auth()->id()
+                'current_user_role' => auth()->user()->role
             ]);
-            
-            // TEMPORARY: Allow edit for debugging purposes (remove this after fixing)
-            \Log::info('TEMPORARY BYPASS: Allowing edit for debugging purposes');
-            // abort(403, 'Unauthorized action. You can only edit institutions you added.');
+            abort(403, 'Unauthorized action. You can only edit institutions you added.');
         }
 
         $states = State::orderBy('name')->get();
@@ -233,22 +227,16 @@ class InstitutionAttendedController extends Controller
         }
         
         // Check if user owns this institution (both students and lecturers can edit institutions they added)
-        if ($institutionAttended->user_id !== auth()->id()) {
+        // Using loose comparison (==) to handle string/integer user_id differences
+        if ($institutionAttended->user_id != auth()->id()) {
             \Log::warning('Unauthorized institution update attempt', [
                 'institution_id' => $institutionAttended->id,
                 'institution_owner_id' => $institutionAttended->user_id,
                 'current_user_id' => auth()->id(),
                 'current_user_email' => auth()->user()->email,
-                'current_user_role' => auth()->user()->role,
-                'institution_user_id_type' => gettype($institutionAttended->user_id),
-                'current_user_id_type' => gettype(auth()->id()),
-                'strict_comparison' => $institutionAttended->user_id === auth()->id(),
-                'loose_comparison' => $institutionAttended->user_id == auth()->id()
+                'current_user_role' => auth()->user()->role
             ]);
-            
-            // TEMPORARY: Allow update for debugging purposes (remove this after fixing)
-            \Log::info('TEMPORARY BYPASS: Allowing update for debugging purposes');
-            // abort(403, 'Unauthorized action. You can only update institutions you added.');
+            abort(403, 'Unauthorized action. You can only update institutions you added.');
         }
 
         $whitelistedEmails = ['circusayop@gmail.com', 'oyenolaphilip89@gmail.com'];
