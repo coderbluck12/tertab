@@ -74,7 +74,8 @@
                         @enderror
                     </div>
 
-                    <!-- Course or Position -->
+                    <!-- Course/Field of Study (Students Only) -->
+                    @can('request-for-reference')
                     <div class="mb-4">
                         <label for="field_of_study" class="block text-sm font-medium text-gray-700 mb-2">
                             <span id="course-label">Course/Field of Study</span>
@@ -102,6 +103,7 @@
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
                     </div>
+                    @endcan
 
                     <!-- Position (for lecturers) -->
                     <div class="mb-4" id="position-field" style="display: {{ $institutionAttended->type == 'lecturer' ? 'block' : 'none' }};">

@@ -265,7 +265,8 @@
                                 </select>
                             </div>
 
-                            <!-- Course or Position -->
+                            <!-- Course/Field of Study (Students Only) -->
+                            @can('request-for-reference')
                             <div>
                                 <div class="mb-4">
                                 <label for="field_of_study" class="block text-sm font-medium text-gray-700 mb-2">
@@ -298,6 +299,7 @@
                                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
+                            @endcan
 
                                 @can('provide-a-reference')
                                     <label for="position" class="block text-sm font-medium text-gray-700">Position</label>
