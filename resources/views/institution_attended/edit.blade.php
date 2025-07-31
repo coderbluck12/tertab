@@ -229,7 +229,7 @@
                 institutionSelect.innerHTML = '<option value="">Loading...</option>';
                 
                 if (stateId) {
-                    fetch(`/tertab/public/institutions-by-state/${stateId}`)
+                    fetch(`/institutions-by-state/${stateId}`)
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error(`HTTP error! status: ${response.status}`);

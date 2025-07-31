@@ -115,7 +115,7 @@
             institutionsLoading.style.display = 'block';
             institutionsEmpty.style.display = 'none';
 
-            const url = stateId ? `/tertab/public/institutions-by-state/${stateId}` : '/tertab/public/institutions-by-state';
+            const url = stateId ? `/institutions-by-state/${stateId}` : '/institutions-by-state';
             
             fetch(url)
                 .then(response => response.json())
