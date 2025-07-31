@@ -298,35 +298,6 @@
                                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
-                                @can('request-for-reference')
-                                    <label for="field_of_study" class="block text-sm font-medium text-gray-700">Field of Study</label>
-                                    <select id="field_of_study" name="field_of_study" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500">
-                                        <option value="">Select Field of Study</option>
-                                        <optgroup label="Science & Technology">
-                                            <option value="Computer Science">Computer Science</option>
-                                            <option value="Data Science">Data Science</option>
-                                            <option value="Cybersecurity">Cybersecurity</option>
-                                            <option value="Mechanical Engineering">Mechanical Engineering</option>
-                                            <option value="Civil Engineering">Civil Engineering</option>
-                                        </optgroup>
-                                        <optgroup label="Business & Economics">
-                                            <option value="Business Administration">Business Administration</option>
-                                            <option value="Marketing">Marketing</option>
-                                            <option value="Finance">Finance</option>
-                                            <option value="Economics">Economics</option>
-                                        </optgroup>
-                                        <optgroup label="Medical & Health Sciences">
-                                            <option value="Medicine & Surgery">Medicine & Surgery</option>
-                                            <option value="Nursing">Nursing</option>
-                                            <option value="Pharmacy">Pharmacy</option>
-                                        </optgroup>
-                                        <optgroup label="Arts & Humanities">
-                                            <option value="English Literature">English Literature</option>
-                                            <option value="Philosophy">Philosophy</option>
-                                            <option value="Journalism & Media Studies">Journalism & Media Studies</option>
-                                        </optgroup>
-                                    </select>
-                                @endcan
 
                                 @can('provide-a-reference')
                                     <label for="position" class="block text-sm font-medium text-gray-700">Position</label>

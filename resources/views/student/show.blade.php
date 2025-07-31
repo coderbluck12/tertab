@@ -20,24 +20,9 @@
                         </span>
                     </p>
                     <p><strong class="font-semibold">Description:</strong> {{ $request->reference_description }}</p>
-                </div>
-            </div>
-
-            <div class="bg-white shadow-lg sm:rounded-lg p-6 mb-8">
-                <h3 class="text-xl font-bold text-gray-800 border-b pb-4 mb-4">Reference Request Details</h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <p><strong class="font-semibold">Reference Type:</strong> {{ ucfirst($request->reference_type) }}</p>
-                        <p><strong class="font-semibold">Request Type:</strong> {{ ucfirst($request->request_type) }}</p>
-
-                        <p><strong class="font-semibold">Status:</strong>
-                            <span class="capitalize {{ $request->status == 'pending' ? 'text-yellow-800' : ($request->status == 'lecturer approved' ? 'text-green-600' : 'text-green-800') }}">
-                                {{ ucfirst($request->status) }}
-                            </span>
-                        </p>
-                        <p><strong class="font-semibold">Description:</strong> {{ $request->reference_description }}</p>
-                    </div>
+                    @if($request->reference_type === 'email')
+                        <p><strong class="font-semibold">Lecturer Email:</strong> {{ $request->lecturer->email }}</p>
+                    @endif
                 </div>
             </div>
 
