@@ -179,20 +179,41 @@
 
                     <!-- Add New Documents -->
                     <div class="mb-4">
-                        <label for="document-upload" class="block text-sm font-medium text-gray-700 mb-2">Add Supporting Documents (Optional)</label>
-                        <input type="file" name="documents[]" id="document-upload" multiple 
-                               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                               accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
-                        <p class="text-sm text-gray-600 mt-1">Accepted formats: PDF, JPG, PNG, DOC, DOCX (Max: 2MB each)</p>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Add Supporting Documents (Optional)</label>
+                        
+                        <!-- File Upload Area -->
+                        <div class="relative">
+                            <input type="file" name="documents[]" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" 
+                                   id="document-upload" 
+                                   class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                                <svg class="mx-auto h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="mt-4">
+                                    <p class="text-sm font-medium text-gray-700">
+                                        <span class="text-blue-600 hover:text-blue-500">Click to upload</span> or drag and drop
+                                    </p>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        PDF, JPG, JPEG, PNG, DOC, DOCX (max 2MB each)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Selected Files Display -->
+                        <div id="selected-files" class="mt-3 space-y-2 hidden">
+                            <p class="text-sm font-medium text-gray-700">Selected Files:</p>
+                            <div id="file-list" class="space-y-2"></div>
+                        </div>
+                        
+                        <p class="mt-2 text-sm text-gray-500">
+                            You can upload multiple documents. Supported formats: PDF, JPG, JPEG, PNG, DOC, DOCX. 
+                            Maximum file size: 2MB per file.
+                        </p>
                         @error('documents.*')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
-                        
-                        <!-- Selected Files Display -->
-                        <div id="selected-files" class="mt-2 hidden">
-                            <p class="text-sm font-medium text-gray-700 mb-2">Selected Files:</p>
-                            <div id="file-list" class="space-y-1"></div>
-                        </div>
                     </div>
 
                     <!-- Submit Button -->
@@ -288,27 +309,88 @@
                 customCourseInput.required = true;
             }
 
+            // Enhanced file upload functionality
+            const uploadArea = fileInput.parentElement.querySelector('.border-dashed');
+            
+            // Drag and drop functionality
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight(e) {
+                uploadArea.classList.add('border-blue-400', 'bg-blue-50');
+            }
+            
+            function unhighlight(e) {
+                uploadArea.classList.remove('border-blue-400', 'bg-blue-50');
+            }
+            
+            uploadArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                fileInput.files = files;
+                displaySelectedFiles(Array.from(files));
+            }
+            
             // Handle file selection
             fileInput.addEventListener('change', function() {
                 const files = Array.from(this.files);
-                
-                if (files.length > 0) {
-                    selectedFilesDiv.classList.remove('hidden');
-                    fileListDiv.innerHTML = '';
-                    
-                    files.forEach((file, index) => {
-                        const fileDiv = document.createElement('div');
-                        fileDiv.className = 'flex items-center justify-between bg-gray-100 p-2 rounded text-sm';
-                        fileDiv.innerHTML = `
-                            <span>${file.name}</span>
-                            <button type="button" onclick="removeFile(${index})" class="text-red-600 hover:text-red-800">Remove</button>
-                        `;
-                        fileListDiv.appendChild(fileDiv);
-                    });
-                } else {
-                    selectedFilesDiv.classList.add('hidden');
-                }
+                displaySelectedFiles(files);
             });
+            
+            function displaySelectedFiles(files) {
+                if (files.length === 0) {
+                    selectedFilesDiv.classList.add('hidden');
+                    return;
+                }
+                
+                selectedFilesDiv.classList.remove('hidden');
+                fileListDiv.innerHTML = '';
+                
+                files.forEach((file, index) => {
+                    const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                    const fileDiv = document.createElement('div');
+                    fileDiv.className = 'flex items-center justify-between bg-gray-50 p-3 rounded-md border';
+                    
+                    // File type icon
+                    const extension = file.name.split('.').pop().toLowerCase();
+                    let iconColor = 'text-gray-400';
+                    if (['pdf'].includes(extension)) iconColor = 'text-red-500';
+                    else if (['jpg', 'jpeg', 'png'].includes(extension)) iconColor = 'text-blue-500';
+                    else if (['doc', 'docx'].includes(extension)) iconColor = 'text-blue-600';
+                    
+                    fileDiv.innerHTML = `
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 ${iconColor} mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">${file.name}</p>
+                                <p class="text-xs text-gray-500">${fileSize} MB</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="removeFile(${index})" class="text-red-600 hover:text-red-800 text-sm font-medium">
+                            Remove
+                        </button>
+                    `;
+                    fileListDiv.appendChild(fileDiv);
+                });
+            }
 
             // Form submission handler for custom course
             document.getElementById('institution-form').addEventListener('submit', function(e) {
@@ -341,7 +423,17 @@
             });
             
             fileInput.files = dt.files;
-            fileInput.dispatchEvent(new Event('change'));
+            
+            // Update the display using the enhanced function
+            const selectedFilesDiv = document.getElementById('selected-files');
+            const fileListDiv = document.getElementById('file-list');
+            
+            if (fileInput.files.length === 0) {
+                selectedFilesDiv.classList.add('hidden');
+            } else {
+                // Re-trigger the display function
+                fileInput.dispatchEvent(new Event('change'));
+            }
         }
 
         function deleteDocument(documentId) {
