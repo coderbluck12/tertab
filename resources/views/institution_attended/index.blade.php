@@ -301,31 +301,34 @@
                             </div>
                             @endcan
 
-                                @can('provide-a-reference')
-                                    <label for="position" class="block text-sm font-medium text-gray-700">Position</label>
-                                    <select id="position" name="position" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500">
-                                        <option value="">Select Position</option>
-                                        <optgroup label="Professorship Ranks">
-                                            <option value="Assistant Lecturer">Assistant Lecturer</option>
-                                            <option value="Lecturer I">Lecturer I</option>
-                                            <option value="Lecturer II">Lecturer II</option>
-                                            <option value="Senior Lecturer">Senior Lecturer</option>
-                                            <option value="Associate Professor">Associate Professor</option>
-                                            <option value="Professor">Professor</option>
-                                        </optgroup>
-                                        <optgroup label="Research & Administration">
-                                            <option value="Research Fellow">Research Fellow</option>
-                                            <option value="Teaching Assistant">Teaching Assistant</option>
-                                            <option value="Department Head">Department Head</option>
-                                            <option value="Dean">Dean</option>
-                                        </optgroup>
-                                        <optgroup label="Specialized Roles">
-                                            <option value="Adjunct Lecturer">Adjunct Lecturer</option>
-                                            <option value="Visiting Lecturer">Visiting Lecturer</option>
-                                            <option value="Clinical Instructor">Clinical Instructor</option>
-                                        </optgroup>
-                                    </select>
-                                @endcan
+                            <!-- Position (for lecturers) -->
+                            @can('provide-a-reference')
+                            <div>
+                                <label for="position" class="block text-sm font-medium text-gray-700">Position</label>
+                                <select id="position" name="position" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Select Position</option>
+                                    <optgroup label="Professorship Ranks">
+                                        <option value="Assistant Lecturer">Assistant Lecturer</option>
+                                        <option value="Lecturer I">Lecturer I</option>
+                                        <option value="Lecturer II">Lecturer II</option>
+                                        <option value="Senior Lecturer">Senior Lecturer</option>
+                                        <option value="Associate Professor">Associate Professor</option>
+                                        <option value="Professor">Professor</option>
+                                    </optgroup>
+                                    <optgroup label="Research & Administration">
+                                        <option value="Research Fellow">Research Fellow</option>
+                                        <option value="Teaching Assistant">Teaching Assistant</option>
+                                        <option value="Department Head">Department Head</option>
+                                        <option value="Dean">Dean</option>
+                                    </optgroup>
+                                    <optgroup label="Specialized Roles">
+                                        <option value="Adjunct Lecturer">Adjunct Lecturer</option>
+                                        <option value="Visiting Lecturer">Visiting Lecturer</option>
+                                        <option value="Clinical Instructor">Clinical Instructor</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            @endcan
                             </div>
                         </div>
 
