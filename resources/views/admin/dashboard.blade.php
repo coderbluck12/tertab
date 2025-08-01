@@ -27,11 +27,11 @@
                         <i class="fas fa-cogs text-2xl mb-2"></i>
                         <p class="font-medium">Platform Settings</p>
                     </a>
-                    <a href="{{ route('admin.students') }}" class="bg-purple-600 text-white p-4 rounded-lg text-center hover:bg-purple-700 transition-colors">
+                    <a href="{{ route('admin.students') }}" class="bg-yellow-600 text-white p-4 rounded-lg text-center hover:bg-yellow-700 transition-colors">
                         <i class="fas fa-users text-2xl mb-2"></i>
                         <p class="font-medium">Manage Students</p>
                     </a>
-                    <a href="{{ route('admin.lecturers') }}" class="bg-orange-600 text-white p-4 rounded-lg text-center hover:bg-orange-700 transition-colors">
+                    <a href="{{ route('admin.lecturers') }}" class="bg-red-600 text-white p-4 rounded-lg text-center hover:bg-orange-700 transition-colors">
                         <i class="fas fa-user-tie text-2xl mb-2"></i>
                         <p class="font-medium">Manage Lecturers</p>
                     </a>
