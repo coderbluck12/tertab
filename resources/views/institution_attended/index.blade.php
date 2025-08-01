@@ -28,8 +28,8 @@
             @endif
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                <!-- Left Column: Institution List -->
-                <div class="bg-white shadow-sm rounded-lg p-6">
+                <!-- Left Column: Institution List (Order 2 on mobile, 1 on desktop) -->
+                <div class="bg-white shadow-sm rounded-lg p-6 order-2 lg:order-1">
                     <p class="text-sm text-green-500 mb-4">Note: You can add more than one institution</p>
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Uploaded Institutions</h3>
 
@@ -220,8 +220,8 @@
                     @endif
                 </div>
 
-                <!-- Right Column: Institution Form -->
-                <div class="bg-white shadow-sm rounded-lg p-6">
+                <!-- Right Column: Institution Form (Order 1 on mobile, 2 on desktop) -->
+                <div class="bg-white shadow-sm rounded-lg p-6 order-1 lg:order-2">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Add Institution</h3>
                     <form method="POST" action="{{ route('institution.attended.store') }}" enctype="multipart/form-data" class="space-y-4">
                         @csrf
