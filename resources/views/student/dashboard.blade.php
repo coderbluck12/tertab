@@ -18,7 +18,7 @@
 
             <!-- Verification Alert Banner for Unverified Users -->
             @if($user->status === 'pending')
-                <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg shadow-lg mb-6 border-l-4 border-blue-300">
+                <div class="bg-blue-600 text-white p-4 rounded-lg shadow-lg mb-6 border-l-4 border-blue-300">
                     <div class="flex items-center justify-between flex-wrap gap-3">
                         <div class="flex items-center space-x-3">
                             <div class="flex-shrink-0">
