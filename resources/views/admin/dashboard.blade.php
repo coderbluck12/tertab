@@ -40,10 +40,10 @@
 
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                <x-stat-card title="Total Lecturers" count="{{ $adminStats['lecturers'] ?? 0 }}" color="blue" icon="fas fa-user-tie" />
-                <x-stat-card title="Total Students" count="{{ $adminStats['students'] ?? 0 }}" color="green" icon="fas fa-users" />
-                <x-stat-card title="Total Reference Requests" count="{{ $adminStats['total'] ?? 0 }}" color="teal" icon="fas fa-file-alt" />
-                <x-stat-card title="Total Earnings" count="₦{{ number_format($adminStats['earnings'] ?? 0, 2) }}" color="black" icon="fas fa-wallet" />
+                <x-stat-card title="Total Lecturers" count="{{ $adminStats['lecturers'] ?? 0 }}" color="red" icon="fas fa-user-tie" />
+                <x-stat-card title="Total Students" count="{{ $adminStats['students'] ?? 0 }}" color="blue" icon="fas fa-users" />
+                <x-stat-card title="Total Reference Requests" count="{{ $adminStats['total'] ?? 0 }}" color="green" icon="fas fa-file-alt" />
+                <x-stat-card title="Total Earnings" count="₦{{ number_format($adminStats['earnings'] ?? 0, 2) }}" color="yellow" icon="fas fa-wallet" />
             </div>
 
             <!-- Requests Management -->
