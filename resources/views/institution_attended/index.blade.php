@@ -247,6 +247,39 @@
                             </div>
                         </div>
 
+                        <!-- Course/Field of Study -->
+                        <div class="mb-4">
+                            <label for="field_of_study" class="block text-sm font-medium text-gray-700 mb-2">
+                                <span id="course-label">Course/Field of Study</span>
+                            </label>
+                            <select name="field_of_study" id="field_of_study" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Select Course</option>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Engineering">Engineering</option>
+                                <option value="Medicine">Medicine</option>
+                                <option value="Law">Law</option>
+                                <option value="Business Administration">Business Administration</option>
+                                <option value="Economics">Economics</option>
+                                <option value="Psychology">Psychology</option>
+                                <option value="Education">Education</option>
+                                <option value="Mathematics">Mathematics</option>
+                                <option value="Physics">Physics</option>
+                                <option value="Chemistry">Chemistry</option>
+                                <option value="Biology">Biology</option>
+                                <option value="Accounting">Accounting</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            
+                            <!-- Custom course input (shown when "Other" is selected) -->
+                            <input type="text" id="custom_course" name="custom_field_of_study" 
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2 hidden" 
+                                   placeholder="Enter your course/field of study">
+                            
+                            @error('field_of_study')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <!-- Institution Type -->
                             <div>
@@ -263,39 +296,6 @@
 {{--                                    <option value="course">Course</option>--}}
 
                                 </select>
-                            </div>
-
-                            <!-- Course/Field of Study -->
-                            <div>
-                                <label for="field_of_study" class="block text-sm font-medium text-gray-700 mb-2">
-                                    <span id="course-label">Course/Field of Study</span>
-                                </label>
-                                <select name="field_of_study" id="field_of_study" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="">Select Course</option>
-                                    <option value="Computer Science">Computer Science</option>
-                                    <option value="Engineering">Engineering</option>
-                                    <option value="Medicine">Medicine</option>
-                                    <option value="Law">Law</option>
-                                    <option value="Business Administration">Business Administration</option>
-                                    <option value="Economics">Economics</option>
-                                    <option value="Psychology">Psychology</option>
-                                    <option value="Education">Education</option>
-                                    <option value="Mathematics">Mathematics</option>
-                                    <option value="Physics">Physics</option>
-                                    <option value="Chemistry">Chemistry</option>
-                                    <option value="Biology">Biology</option>
-                                    <option value="Accounting">Accounting</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                                
-                                <!-- Custom course input (shown when "Other" is selected) -->
-                                <input type="text" id="custom_course" name="custom_field_of_study" 
-                                       class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2 hidden" 
-                                       placeholder="Enter your course/field of study">
-                                
-                                @error('field_of_study')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
                             </div>
 
                             <!-- Position (for lecturers) -->
@@ -326,7 +326,6 @@
                                 </select>
                             </div>
                             @endcan
-                            </div>
                         </div>
 
                         <!-- School Email for Lecturers -->
