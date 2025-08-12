@@ -2,15 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\VerificationRejectedMail;
 use App\Models\Document;
+use App\Models\Notification;
 use App\Models\User;
 use App\Models\VerificationRequest;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class VerificationController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     public function showVerificationRequired()
     {
         return view('verification.required');
@@ -31,14 +42,31 @@ class VerificationController extends Controller
 
             $documentPath = $request->file('id_document')->store('verification_documents', 'public');
 
-            $verificationRequest = VerificationRequest::create([
-                'user_id' => auth()->id(),
-                'document_type' => $request->document_type,
-                'document_path' => $documentPath,
-                'status' => 'pending',
-                'notes' => $request->notes,
-                'verification_name' => $request->document_type
-            ]);
+            // Check if user has existing verification request
+            $existingRequest = VerificationRequest::where('user_id', auth()->id())->first();
+            
+            if ($existingRequest) {
+                // Update existing request
+                $existingRequest->update([
+                    'document_type' => $request->document_type,
+                    'document_path' => $documentPath,
+                    'status' => 'pending',
+                    'notes' => $request->notes,
+                    'verification_name' => $request->document_type,
+                    'rejection_reason' => null // Clear previous rejection reason
+                ]);
+                $verificationRequest = $existingRequest;
+            } else {
+                // Create new request
+                $verificationRequest = VerificationRequest::create([
+                    'user_id' => auth()->id(),
+                    'document_type' => $request->document_type,
+                    'document_path' => $documentPath,
+                    'status' => 'pending',
+                    'notes' => $request->notes,
+                    'verification_name' => $request->document_type
+                ]);
+            }
 
             auth()->user()->update(['status' => 'pending']);
 
@@ -91,6 +119,15 @@ class VerificationController extends Controller
             'status' => 'verified'
         ]);
 
+        // Create notification for user
+        $this->notificationService->send(
+            $verificationRequest->user_id,
+            'success',
+            'Identity Verification Approved',
+            'Congratulations! Your identity verification has been approved. You now have full access to all platform features.',
+            route('dashboard')
+        );
+
         return redirect()->back()->with('success', 'Verification request has been approved.');
     }
 
@@ -104,6 +141,23 @@ class VerificationController extends Controller
             'status' => 'rejected',
             'rejection_reason' => $request->rejection_reason
         ]);
+
+        // Update user status to rejected so they can resubmit
+        $verificationRequest->user->update([
+            'status' => 'rejected'
+        ]);
+
+        // Send rejection email notification
+        Mail::to($verificationRequest->user->email)->send(new VerificationRejectedMail($verificationRequest));
+
+        // Create notification for user
+        $this->notificationService->send(
+            $verificationRequest->user_id,
+            'error',
+            'Identity Verification Rejected',
+            'Your identity verification has been rejected. Please review the feedback and resubmit your documents.',
+            route('verification.required')
+        );
 
         return redirect()->back()->with('success', 'Verification request has been rejected.');
     }

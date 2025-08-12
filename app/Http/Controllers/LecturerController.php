@@ -19,7 +19,7 @@ class LecturerController extends Controller
 
         $requests = Reference::where('lecturer_id', $lecturer->id)->orderBy('created_at', 'desc')->paginate(10);
 
-        $user = Auth::user();
+        $user = Auth::user()->load('verificationRequest');
 
         $lecturerStats = [
             'pending' => $lecturer->requests()->where('status', 'pending')->count(),
@@ -94,5 +94,28 @@ class LecturerController extends Controller
             ->get();
 
         return response()->json($lecturers);
+    }
+
+    /**
+     * Display dedicated references page for lecturers.
+     */
+    public function references()
+    {
+        $lecturer = auth()->user();
+        $requests = Reference::where('lecturer_id', $lecturer->id)
+            ->with('student')
+            ->latest()
+            ->paginate(10);
+
+        // Count requests by status
+        $stats = [
+            'total' => Reference::where('lecturer_id', $lecturer->id)->count(),
+            'pending' => Reference::where('lecturer_id', $lecturer->id)->where('status', 'pending')->count(),
+            'approved' => Reference::where('lecturer_id', $lecturer->id)->where('status', 'lecturer approved')->count(),
+            'completed' => Reference::where('lecturer_id', $lecturer->id)->where('status', 'lecturer completed')->count(),
+            'rejected' => Reference::where('lecturer_id', $lecturer->id)->where('status', 'lecturer rejected')->count(),
+        ];
+
+        return view('lecturer.references', compact('requests', 'stats', 'lecturer'));
     }
 }

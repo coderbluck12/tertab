@@ -16,6 +16,7 @@ use App\Http\Controllers\PlatfromSettingsController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\WalletController;
+use App\Http\Controllers\WithdrawalController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -40,6 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Student routes
     Route::get('/student/dashboard', [StudentController::class, 'index'])->middleware(['role:student'])->name('student.dashboard');
     Route::get('/student/reference', [StudentController::class, 'reference'])->name('student.reference');
+    Route::get('/student/references', [StudentController::class, 'references'])->name('student.references');
     Route::post('/reference', [ReferenceController::class, 'store'])->name('reference.store');
     Route::get('/student/reference/{id}/edit', [ReferenceController::class, 'edit'])->name('student.reference.edit');
     Route::put('/student/reference/{id}', [ReferenceController::class, 'update'])->name('student.reference.update');
@@ -49,6 +51,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Lecturer routes
     Route::get('/lecturer/dashboard', [LecturerController::class, 'index'])->middleware(['role:lecturer'])->name('lecturer.dashboard');
+    Route::get('/lecturer/references', [LecturerController::class, 'references'])->name('lecturer.references');
+    
+    // Withdrawal routes (moved before resource route to avoid conflicts)
+    Route::get('/lecturer/withdrawal', [WithdrawalController::class, 'create'])->middleware(['auth'])->name('lecturer.withdrawal.create');
+    Route::post('/lecturer/withdrawal', [WithdrawalController::class, 'store'])->middleware(['auth'])->name('lecturer.withdrawal.store');
+    Route::get('/lecturer/withdrawal/history', [WithdrawalController::class, 'index'])->middleware(['auth'])->name('lecturer.withdrawal.history');
+    
     Route::resource('/lecturer', LecturerController::class);
     Route::resource('/reference', ReferenceController::class);
     Route::patch('/lecturer/reference/{id}/approve', [ReferenceController::class, 'approve'])->name('lecturer.reference.approve');
@@ -59,14 +68,38 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/lecturer/reference/{id}/upload', [ReferenceController::class, 'upload'])->name('lecturer.reference.upload');
     Route::post('/lecturer/reference/{id}/message', [ReferenceController::class, 'sendMessage'])->name('lecturer.reference.message');
     Route::get('/lecturer/institution', [InstitutionAttendedController::class, 'index'])->name('lecturer.institution.index');
+    
+    // Test withdrawal route (temporary - remove after testing)
+    Route::get('/test-withdrawal', [WithdrawalController::class, 'create'])->middleware(['auth'])->name('test.withdrawal');
+    Route::get('/test-withdrawal-history', [WithdrawalController::class, 'index'])->middleware(['auth'])->name('test.withdrawal.history');
+    
+    // Debug route to check user role (temporary)
+    Route::get('/debug-user-role', function() {
+        return response()->json([
+            'user_id' => auth()->id(),
+            'user_role' => auth()->user()->role ?? 'no role',
+            'user_email' => auth()->user()->email ?? 'no email',
+            'is_authenticated' => auth()->check()
+        ]);
+    })->middleware(['auth'])->name('debug.user.role');
+    
+    // Simple test route to verify URL structure
+    Route::get('/test-route-works', function() {
+        return '<h1>Route Works!</h1><p>If you can see this, the route structure is working correctly.</p>';
+    })->name('test.route.works');
 
     // Institution routes
     Route::get('/institution/attended', [InstitutionAttendedController::class, 'show'])->name('institution.attended.show');
+    Route::get('/institution/attended/index', [InstitutionAttendedController::class, 'index'])->name('institution.attended.index');
+    Route::get('/institution/attended/create', [InstitutionAttendedController::class, 'create'])->name('institution.attended.create');
+    Route::get('/institution/attended/list', [InstitutionAttendedController::class, 'list'])->name('institution.attended.list');
     Route::post('/institution/attended', [InstitutionAttendedController::class, 'store'])->name('institution.attended.store');
     Route::get('/institution/attended/{institutionAttended}/edit', [InstitutionAttendedController::class, 'edit'])->name('institution.attended.edit');
     Route::put('/institution/attended/{institutionAttended}', [InstitutionAttendedController::class, 'update'])->name('institution.attended.update');
     Route::delete('/institution/attended/{institutionAttended}', [InstitutionAttendedController::class, 'destroy'])->name('institution.attended.destroy');
     Route::delete('/institution/attended/{institutionAttended}/document/{document}', [InstitutionAttendedController::class, 'deleteDocument'])->name('institution.attended.document.delete');
+    Route::post('/institution/attended/{institutionAttended}/verification/send', [InstitutionAttendedController::class, 'sendVerificationEmail'])->name('institution.verification.send');
+    Route::get('/institution/attended/{institution}/verify/{token}', [InstitutionAttendedController::class, 'verifyEmail'])->name('institution.email.verify');
     
     // Institution email verification routes
     Route::post('/institution/{institution}/verification/send', [InstitutionEmailVerificationController::class, 'sendVerificationEmail'])->name('institution.verification.send');
@@ -86,6 +119,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/disputes/documents/{document}/download', [DisputeDocumentController::class, 'download'])->name('disputes.documents.download');
 
     // Notification routes
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
     Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-as-read');
 
@@ -98,12 +132,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Admin routes - These require both verification and admin role
 Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/references', [AdminController::class, 'allReferences'])->name('admin.references.all');
     Route::get('/reference/{id}', [AdminController::class, 'show'])->name('admin.reference.show');
     Route::patch('reference/{id}/approve', [ReferenceController::class, 'approve'])->name('admin.reference.approve');
     Route::patch('reference/{id}/reject', [ReferenceController::class, 'reject'])->name('admin.reference.reject');
     Route::post('reference/{id}/upload', [ReferenceController::class, 'upload'])->name('admin.reference.upload');
     Route::get('/settings', [PlatfromSettingsController::class, 'index'])->name('admin.platform.settings');
-    Route::post('/settings', [PlatfromSettingsController::class, 'update'])->name('admin.platform.settings.update');
+    Route::match(['POST', 'PATCH'], '/settings', [PlatfromSettingsController::class, 'update'])->name('admin.platform.settings.update');
     
     // Institution management
     Route::get('/institutions', [AdminController::class, 'institutions'])->name('admin.institutions.index');
@@ -120,6 +155,11 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(fu
     Route::get('/lecturers', [AdminController::class, 'lecturers'])->name('admin.lecturers');
     Route::get('/user/{id}', [AdminController::class, 'showUser'])->name('admin.user.show');
     Route::get('/user/status/{id}', [AdminController::class, 'approveUser'])->name('admin.user.approve');
+    
+    // Export routes
+    Route::get('/students/export', [AdminController::class, 'exportStudents'])->name('admin.students.export');
+    Route::get('/lecturers/export', [AdminController::class, 'exportLecturers'])->name('admin.lecturers.export');
+    Route::get('/references/export', [AdminController::class, 'exportReferences'])->name('admin.references.export');
     Route::get('/verification-requests', [AdminController::class, 'verificationRequests'])->name('admin.verification.requests');
     Route::patch('/verification/{verificationRequest}/approve', [VerificationController::class, 'approve'])->name('admin.verification.approve');
     Route::patch('/verification/{verificationRequest}/reject', [VerificationController::class, 'reject'])->name('admin.verification.reject');

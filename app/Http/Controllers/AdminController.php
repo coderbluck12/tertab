@@ -35,10 +35,22 @@ class AdminController extends Controller
             'verification_requests' => VerificationRequest::where('status', 'pending')->count(),
         ];
 
-        $requests = Reference::with('student')->latest()->get();
-        $verificationRequests = VerificationRequest::with('user')->latest()->get();
+        $requests = Reference::with('student')->latest()->paginate(10);
+        $verificationRequests = VerificationRequest::with('user')->latest()->paginate(10);
 
         return view('admin.dashboard', compact('adminStats', 'requests', 'verificationRequests'));
+    }
+
+    /**
+     * Display all reference requests with pagination.
+     */
+    public function allReferences()
+    {
+        $requests = Reference::with(['student', 'lecturer'])
+            ->latest()
+            ->paginate(15);
+
+        return view('admin.references', compact('requests'));
     }
 
     /**
@@ -304,6 +316,171 @@ dd($request);
         // Placeholder for when Course model is created
         return redirect()->route('admin.courses.index')
             ->with('info', 'Course management not yet implemented.');
+    }
+
+    /**
+     * Export students data to Excel/CSV
+     */
+    public function exportStudents()
+    {
+        $students = User::where('role', 'student')->get();
+        
+        $filename = 'students_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+        
+        $callback = function() use ($students) {
+            $file = fopen('php://output', 'w');
+            
+            // Add CSV headers
+            fputcsv($file, [
+                'ID',
+                'Name', 
+                'Email',
+                'Status',
+                'Email Verified',
+                'Joined Date',
+                'Last Updated',
+                'Wallet Balance',
+                'References Count',
+                'Institutions Count'
+            ]);
+            
+            // Add data rows
+            foreach ($students as $student) {
+                fputcsv($file, [
+                    $student->id,
+                    $student->name,
+                    $student->email,
+                    $student->status ?? 'pending',
+                    $student->email_verified_at ? 'Yes' : 'No',
+                    $student->created_at->format('Y-m-d H:i:s'),
+                    $student->updated_at->format('Y-m-d H:i:s'),
+                    number_format($student->wallet_balance ?? 0, 2),
+                    $student->references_count ?? 0,
+                    $student->institutions_count ?? 0
+                ]);
+            }
+            
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export lecturers data to Excel/CSV
+     */
+    public function exportLecturers()
+    {
+        $lecturers = User::where('role', 'lecturer')->get();
+        
+        $filename = 'lecturers_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+        
+        $callback = function() use ($lecturers) {
+            $file = fopen('php://output', 'w');
+            
+            // Add CSV headers
+            fputcsv($file, [
+                'ID',
+                'Name',
+                'Email', 
+                'Status',
+                'Email Verified',
+                'Joined Date',
+                'Last Updated',
+                'Wallet Balance',
+                'References Provided',
+                'Institutions Count'
+            ]);
+            
+            // Add data rows
+            foreach ($lecturers as $lecturer) {
+                fputcsv($file, [
+                    $lecturer->id,
+                    $lecturer->name,
+                    $lecturer->email,
+                    $lecturer->status ?? 'pending',
+                    $lecturer->email_verified_at ? 'Yes' : 'No',
+                    $lecturer->created_at->format('Y-m-d H:i:s'),
+                    $lecturer->updated_at->format('Y-m-d H:i:s'),
+                    number_format($lecturer->wallet_balance ?? 0, 2),
+                    $lecturer->references_provided_count ?? 0,
+                    $lecturer->institutions_count ?? 0
+                ]);
+            }
+            
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export reference requests data to Excel/CSV
+     */
+    public function exportReferences()
+    {
+        $references = Reference::with(['student', 'lecturer'])->get();
+        
+        $filename = 'reference_requests_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+        
+        $callback = function() use ($references) {
+            $file = fopen('php://output', 'w');
+            
+            // Add CSV headers
+            fputcsv($file, [
+                'Request ID',
+                'Student Name',
+                'Student Email',
+                'Lecturer Name',
+                'Lecturer Email',
+                'Request Type',
+                'Reference Type',
+                'Status',
+                'Amount',
+                'Description',
+                'Created Date',
+                'Last Updated',
+                'Documents Count'
+            ]);
+            
+            // Add data rows
+            foreach ($references as $reference) {
+                fputcsv($file, [
+                    $reference->id,
+                    $reference->student->name ?? 'N/A',
+                    $reference->student->email ?? 'N/A',
+                    $reference->lecturer->name ?? 'N/A',
+                    $reference->lecturer->email ?? 'N/A',
+                    $reference->request_type ?? 'N/A',
+                    $reference->reference_type ?? 'N/A',
+                    $reference->status ?? 'pending',
+                    number_format($reference->amount ?? 0, 2),
+                    $reference->reference_description ?? 'No description',
+                    $reference->created_at->format('Y-m-d H:i:s'),
+                    $reference->updated_at->format('Y-m-d H:i:s'),
+                    $reference->documents ? $reference->documents->count() : 0
+                ]);
+            }
+            
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
     }
 
 }

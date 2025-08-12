@@ -35,9 +35,14 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         // Prevent double submission
-    if ($request->session()->has('registration_processed')) {
-        return redirect(route('dashboard', absolute: false));
-    }
+        if ($request->session()->has('registration_processed')) {
+            return redirect(route('dashboard', absolute: false));
+        }
+
+        // Additional check: prevent duplicate email registration attempts
+        if (User::where('email', $request->email)->exists()) {
+            return back()->withErrors(['email' => 'This email is already registered.'])->withInput();
+        }
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => [

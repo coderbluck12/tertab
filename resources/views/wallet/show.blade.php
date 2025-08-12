@@ -26,12 +26,24 @@
             @endcan
 
             @can('provide-a-reference')
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h3 class="text-lg font-semibold text-blue-800 mb-2">How it works</h3>
-                    <p class="text-blue-600">
-                        Your wallet balance increases automatically when students successfully request references from you and the reference is both completed and approved.
-                        The platform will credit your wallet with the reference request amount after each successful transaction.
-                    </p>
+                <div class="space-y-4">
+                    <!-- Withdrawal Button -->
+                    <a href="{{ route('lecturer.withdrawal.create') }}" 
+                       class="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors flex items-center justify-center font-medium">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                        </svg>
+                        Withdraw Funds
+                    </a>
+                    
+                    <!-- How it works info -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-blue-800 mb-2">How it works</h3>
+                        <p class="text-blue-600">
+                            Your wallet balance increases automatically when students successfully request references from you and the reference is both completed and approved.
+                            The platform will credit your wallet with the reference request amount after each successful transaction.
+                        </p>
+                    </div>
                 </div>
             @endcan
         </div>

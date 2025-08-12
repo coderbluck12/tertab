@@ -30,8 +30,8 @@
                     @endcan
 
                     @can('request-for-reference')
-                        @if(auth()->check() && auth()->user()->status !== 'pending')
-                            <x-nav-link :href="route('institution.attended.show')" :active="request()->routeIs('institution.attended.show')" class="font-bold">
+                        @if(auth()->check() && auth()->user()->status === 'verified')
+                            <x-nav-link :href="route('institution.attended.create')" :active="request()->routeIs('institution.attended.create')" class="font-bold">
                                 {{ auth()->user()->attended()->count() > 0 ? 'Add more Institution' : 'Add an Institution' }}
                             </x-nav-link>
                             <x-nav-link :href="route('student.reference')" :active="request()->routeIs('student.reference')" class="font-bold">
@@ -47,8 +47,8 @@
 {{--                        <x-nav-link :href="route('lecturer.index')" :active="request()->routeIs('lecturer.index')">--}}
 {{--                            Approved References--}}
 {{--                        </x-nav-link>--}}
-                        @if(auth()->check() && auth()->user()->status !== 'pending')
-                            <x-nav-link :href="route('institution.attended.show')" :active="request()->routeIs('institution.attended.show')" class="font-bold">
+                        @if(auth()->check() && auth()->user()->status === 'verified')
+                            <x-nav-link :href="route('institution.attended.create')" :active="request()->routeIs('institution.attended.show')" class="font-bold">
                             {{ auth()->user()->attended()->count() > 0 ? 'Add more Institution' : 'Add an Institution' }}
                             </x-nav-link>
                         @endif
@@ -151,18 +151,22 @@
                 </x-responsive-nav-link>
 
                 @can('request-for-reference')
-                    <x-responsive-nav-link :href="route('student.reference')" :active="request()->routeIs('student.reference')" class="font-bold">
-                        Request for Reference
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('institution.attended.show')" :active="request()->routeIs('institution.attended.show')" class="font-bold">
-                        {{ auth()->user()->attended()->count() > 0 ? 'Add more Institution' : 'Add an Institution' }}
-                    </x-responsive-nav-link>
+                    @if(auth()->check() && auth()->user()->status === 'verified')
+                        <x-responsive-nav-link :href="route('student.reference')" :active="request()->routeIs('student.reference')" class="font-bold">
+                            Request for Reference
+                        </x-responsive-nav-link>
+                        <x-responsive-nav-link :href="route('institution.attended.show')" :active="request()->routeIs('institution.attended.show')" class="font-bold">
+                            {{ auth()->user()->attended()->count() > 0 ? 'Add more Institution' : 'Add an Institution' }}
+                        </x-responsive-nav-link>
+                    @endif
                 @endcan
 
                 @can('provide-a-reference')
-                    <x-responsive-nav-link :href="route('institution.attended.show')" :active="request()->routeIs('institution.attended.show')" class="font-bold">
-                        Add Institution Teaching At
-                    </x-responsive-nav-link>
+                    @if(auth()->check() && auth()->user()->status === 'verified')
+                        <x-responsive-nav-link :href="route('institution.attended.show')" :active="request()->routeIs('institution.attended.show')" class="font-bold">
+                            Add Institution Teaching At
+                        </x-responsive-nav-link>
+                    @endif
                 @endcan
 
                 @can('manage-platform')

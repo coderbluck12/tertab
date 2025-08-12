@@ -20,7 +20,8 @@ class InstitutionAttendedController extends Controller
 
     public function create()
     {
-        return view('institutions.create');
+        $states = State::orderBy('name')->get();
+        return view('institution_attended.create', compact('states'));
     }
 
     public function store(Request $request)
@@ -394,5 +395,100 @@ class InstitutionAttendedController extends Controller
             return redirect()->route('institution.attended.show')
                            ->with('error', 'Failed to delete institution. Please try again.');
         }
+    }
+
+    /**
+     * Display a listing of user's institutions
+     */
+    public function list()
+    {
+        $user = auth()->user();
+        $institutions = $user->attended()
+            ->with('documents', 'state', 'institution')
+            ->latest()
+            ->paginate(10);
+
+        // Count institutions by type
+        $stats = [
+            'total' => $user->attended()->count(),
+            'verified' => $user->attended()->whereNotNull('email_verified_at')->count(),
+            'pending' => $user->attended()->whereNull('email_verified_at')->count(),
+        ];
+
+        return view('institution_attended.list', compact('institutions', 'stats', 'user'));
+    }
+
+    /**
+     * Send verification email for institution attendance.
+     */
+    public function sendVerificationEmail(InstitutionAttended $institutionAttended)
+    {
+        // Check if user owns this institution record
+        if ($institutionAttended->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized access to this institution record.');
+        }
+
+        // Check if it's a lecturer type that needs verification
+        if ($institutionAttended->type !== 'lecturer') {
+            return back()->with('error', 'Only lecturer institutions require email verification.');
+        }
+
+        // Check if already verified
+        if ($institutionAttended->isVerified()) {
+            return back()->with('info', 'This institution is already verified.');
+        }
+
+        // Check if school email exists
+        if (!$institutionAttended->school_email) {
+            return back()->with('error', 'School email is required for verification.');
+        }
+
+        try {
+            // Generate verification token if not exists
+            if (!$institutionAttended->verification_token) {
+                $institutionAttended->verification_token = \Str::random(64);
+                $institutionAttended->save();
+            }
+
+            // Send verification email
+            \Mail::to($institutionAttended->school_email)->send(new \App\Mail\InstitutionVerificationMail(
+                $institutionAttended,
+                route('institution.email.verify', [
+                    'institution' => $institutionAttended->id,
+                    'token' => $institutionAttended->verification_token
+                ])
+            ));
+
+            return back()->with('success', 'Verification email sent to ' . $institutionAttended->school_email);
+        } catch (\Exception $e) {
+            \Log::error('Institution verification email error: ' . $e->getMessage());
+            return back()->with('error', 'Failed to send verification email. Please try again.');
+        }
+    }
+
+    /**
+     * Verify email for institution attendance.
+     */
+    public function verifyEmail($institutionId, $token)
+    {
+        $institution = InstitutionAttended::where('id', $institutionId)
+            ->where('verification_token', $token)
+            ->first();
+
+        if (!$institution) {
+            return redirect()->route('institution.attended.index')
+                ->with('error', 'Invalid verification link or token has expired.');
+        }
+
+        if ($institution->isVerified()) {
+            return redirect()->route('institution.attended.index')
+                ->with('info', 'This institution is already verified.');
+        }
+
+        // Mark as verified
+        $institution->markAsVerified();
+
+        return redirect()->route('institution.attended.index')
+            ->with('success', 'Institution email verified successfully!');
     }
 }

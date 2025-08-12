@@ -14,7 +14,7 @@ return new class extends Migration
         if (!Schema::hasColumn('references', 'institution_id')) {
             Schema::table('references', function (Blueprint $table) {
                 $table->unsignedBigInteger('institution_id')->nullable()->after('lecturer_id');
-                $table->foreign('institution_id')->references('id')->on('institutions')->onDelete('cascade');
+                // Don't add foreign key constraint here - it will be handled by the fix migration
             });
         }
     }

@@ -7,10 +7,10 @@
         </div>
     @endif
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg  flex justify-center ">
-                <div class="p-10 text-gray-900 w-full">
-                    <form method="POST" action="{{ route('reference.store') }}" class="max-w-lg">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-10 text-gray-900 flex justify-center">
+                    <form method="POST" action="{{ route('reference.store') }}" class="w-full max-w-2xl">
                         @csrf
                         @if($errors->any())
                             <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
@@ -231,7 +231,7 @@
                 lecturerDropdown.innerHTML = '<option value="">Select a Lecturer</option>'; // Reset dropdown
 
                 if (institutionId) {
-                    fetch(`/get-lecturers/${institutionId}`)
+                    fetch(`/tertab/public/get-lecturers/${institutionId}`)
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -247,7 +247,7 @@
                                 
                                 // Use the specific institution data
                                 let institutionText = lecturer.institution ? 
-                                    lecturer.institution.name + ' (' + lecturer.institution.position + ')' : 
+                                    lecturer.institution.name + (lecturer.institution.position ? ' (' + lecturer.institution.position + ')' : '') : 
                                     'No Institution';
                                 
                                 option.textContent = lecturer.name + ' - ' + institutionText;

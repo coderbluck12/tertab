@@ -19,7 +19,7 @@ class StudentController extends Controller
     {
         $lecturers = User::where('role', 'lecturer')->get();
 
-        $user = Auth::user();
+        $user = Auth::user()->load('verificationRequest');
 
         $requests = Reference::where('student_id', Auth::id())->with('lecturer')->orderBy('created_at', 'desc')->paginate(9);
 
@@ -55,6 +55,40 @@ class StudentController extends Controller
 //        return view('student.reference', compact('lecturers', 'requests', 'requestCounts', 'settings'));
 //
 //    }
+
+    /**
+     * Show the reference creation form.
+     */
+    public function reference()
+    {
+        // Get only states where lecturers are registered
+        $states = State::orderBy('name')->get();
+
+        $requests = Reference::where('student_id', Auth::id())->with('lecturer')->get();
+
+        $settings = PlatformSetting::first();
+
+        // Get the institutions the student has attended
+        $studentInstitutions = InstitutionAttended::where('user_id', Auth::id())
+            ->with(['institution', 'state'])
+            ->get();
+
+        // Get lecturers who belong to those institutions
+        $lecturers = User::where('role', 'lecturer')
+            ->whereHas('attended', function ($query) use ($studentInstitutions) {
+                $query->whereIn('institution_id', $studentInstitutions->pluck('institution_id'));
+            })
+            ->with('attended.institution', 'attended.state')
+            ->get();
+
+        $requestCounts = [
+            'pending' => $requests->where('status', 'pending')->count(),
+            'approved' => $requests->where('status', 'approved')->count(),
+            'rejected' => $requests->where('status', 'declined')->count(),
+        ];
+
+        return view('student.reference', compact('states', 'requests', 'requestCounts', 'lecturers', 'settings', 'studentInstitutions'));
+    }
 
     public function creates()
     {
@@ -118,25 +152,7 @@ class StudentController extends Controller
         return view('student.show', compact('request'));
     }
 
-    public function reference()
-    {
-        // Get the institutions the student has attended
-        $studentInstitutions = InstitutionAttended::where('user_id', Auth::id())
-            ->with(['institution', 'state'])
-            ->get();
 
-        // Get lecturers who belong to those institutions
-        $lecturers = User::where('role', 'lecturer')
-            ->whereHas('attended', function ($query) use ($studentInstitutions) {
-                $query->whereIn('institution_id', $studentInstitutions->pluck('institution_id'));
-            })
-            ->with('attended.institution', 'attended.state')
-            ->get();
-
-        $settings = PlatformSetting::first();
-
-        return view('student.reference', compact('studentInstitutions', 'lecturers', 'settings'));
-    }
 
     /**
      * Show the form for editing the specified resource.
@@ -154,6 +170,29 @@ class StudentController extends Controller
     public function update(Request $request, string $id)
     {
         //
+    }
+
+    /**
+     * Display dedicated references page for students.
+     */
+    public function references()
+    {
+        $user = Auth::user();
+        $requests = Reference::where('student_id', Auth::id())
+            ->with('lecturer')
+            ->latest()
+            ->paginate(10);
+
+        // Count requests by status
+        $stats = [
+            'total' => Reference::where('student_id', Auth::id())->count(),
+            'pending' => Reference::where('student_id', Auth::id())->where('status', 'pending')->count(),
+            'approved' => Reference::where('student_id', Auth::id())->where('status', 'lecturer approved')->count(),
+            'completed' => Reference::where('student_id', Auth::id())->where('status', 'lecturer completed')->count(),
+            'rejected' => Reference::where('student_id', Auth::id())->where('status', 'lecturer rejected')->count(),
+        ];
+
+        return view('student.references', compact('requests', 'stats', 'user'));
     }
 
     /**

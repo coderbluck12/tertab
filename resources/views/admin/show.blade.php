@@ -64,52 +64,10 @@
                 </div>
             </div>
 
-            <!-- Admin Actions -->
+            <!-- Admin View Only - No Actions -->
             <div class="bg-white shadow-lg sm:rounded-lg p-6">
-                <h4 class="text-lg font-semibold text-gray-800 mb-4">Admin Actions</h4>
-                <div class="flex gap-4">
-                    <!-- Approve Request Form -->
-                    <form action="{{ route('admin.reference.approve', $request->id) }}" method="POST">
-                        @csrf
-                        @method('PATCH')
-                        <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-md shadow-sm hover:bg-green-600">
-                            Approve Request
-                        </button>
-                    </form>
-
-                    <!-- Reject Request Form with Reason -->
-                    <div x-data="{ showModal: false }">
-                        <!-- Reject Request Button -->
-                        <button @click="showModal = true" class="px-4 py-2 bg-red-500 text-white rounded-md shadow-sm hover:bg-red-600">
-                            Reject Request
-                        </button>
-
-                        <!-- Modal -->
-                        <div x-show="showModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-                                <h2 class="text-lg font-semibold text-gray-800 mb-4">Reject Request</h2>
-
-                                <form action="{{ route('admin.reference.reject', $request->id) }}" method="POST">
-                                    @csrf
-                                    @method('PATCH')
-                                    <label for="reference_rejection_reason" class="block text-gray-700 font-semibold mb-2">Reason for Rejection:</label>
-                                    <textarea id="reference_rejection_reason" name="reference_rejection_reason" class="w-full p-2 border border-gray-300 rounded-md" rows="3" placeholder="Enter rejection reason..." required></textarea>
-
-                                    <div class="flex justify-end mt-4 gap-4">
-                                        <!-- Cancel Button -->
-                                        <button @click="showModal = false" type="button" class="px-4 py-2 bg-gray-400 text-white rounded-md shadow-sm hover:bg-gray-500">
-                                            Cancel
-                                        </button>
-                                        <!-- Submit Button -->
-                                        <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-md shadow-sm hover:bg-red-600">
-                                            Submit Rejection
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <h4 class="text-lg font-semibold text-gray-800 mb-4">Reference Status</h4>
+                <p class="text-gray-600">This reference request is managed by the assigned lecturer. Admins can view details but cannot approve or reject reference requests.</p>
             </div>
 
             @if($request->status == 'approved')

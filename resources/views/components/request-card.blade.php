@@ -15,7 +15,7 @@
     <div class="mt-3 flex space-x-3">
         <a href="{{ route('admin.reference.show', $request->id) }}" class="text-blue-500 hover:underline">View</a>
 
-        @if($request->status !== 'pending')
+        @if($request->status !== 'pending' && auth()->user()->status === 'verified')
             @if($request->dispute)
                 <a href="{{ route('disputes.show', $request->dispute->id) }}" class="text-blue-500 hover:underline">
                     Manage Dispute

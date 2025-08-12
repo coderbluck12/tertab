@@ -40,7 +40,7 @@ class ReferenceController extends Controller
     {
         $lecturers = User::where('role', 'lecturer')->get();
         $settings = PlatformSetting::first();
-        $studentInstitutions = auth()->user()->institutionsAttended()->with(['institution', 'state'])->get();
+        $studentInstitutions = auth()->user()->attended()->with(['institution', 'state'])->get();
         return view('student.reference', compact('lecturers', 'settings', 'studentInstitutions'));
     }
 
@@ -119,8 +119,8 @@ class ReferenceController extends Controller
             }
         }
 
-        return redirect()->route('student.dashboard')
-        ->with('success', 'Reference request submitted successfully.');
+        return redirect()->route('student.references')
+        ->with('success', 'Reference request submitted successfully! Your request is now visible in the list below.');
     }
 
     /**

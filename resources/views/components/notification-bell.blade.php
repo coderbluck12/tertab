@@ -47,9 +47,9 @@
 
             @if($unreadCount > 0)
                 <div class="px-4 py-2 border-t border-gray-100">
-                    <button onclick="markAllAsRead()" class="text-sm text-blue-600 hover:text-blue-800">
-                        Mark all as read
-                    </button>
+                    <x-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.index')" class="text-blue-500 text-sm">
+                        View More
+                    </x-nav-link>
                 </div>
             @endif
         </div>

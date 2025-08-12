@@ -16,6 +16,68 @@
                 </script>
             @endif
 
+            <!-- Verification Alert Banner for Unverified Users -->
+            @if($user->status === 'pending')
+                <div class="bg-blue-600 text-white p-4 rounded-lg shadow-lg mb-6 border-l-4 border-blue-300">
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex-shrink-0">
+                                <svg class="w-6 h-6 text-blue-100" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-lg">Identity Verification Required</h4>
+                                <p class="text-blue-100 text-sm mt-1">Complete your identity verification to access all features and approve student references.</p>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <button type="button" 
+                                    x-data 
+                                    x-on:click="$dispatch('open-verification-modal')" 
+                                    class="bg-white text-blue-600 hover:bg-blue-50 font-semibold px-4 py-2 rounded-lg shadow-sm transition-colors duration-200 flex items-center space-x-2">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>Verify Now</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @elseif($user->status === 'rejected')
+                <div class="bg-red-600 text-white p-4 rounded-lg shadow-lg mb-6 border-l-4 border-red-300">
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex-shrink-0">
+                                <svg class="w-6 h-6 text-red-100" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-lg">Identity Verification Rejected</h4>
+                                <p class="text-red-100 text-sm mt-1">Your identity verification was rejected. Please review the feedback and resubmit your documents to access all features.</p>
+                                @if($user->verificationRequest && $user->verificationRequest->rejection_reason)
+                                    <p class="text-red-100 text-xs mt-2 bg-red-500 bg-opacity-30 p-2 rounded">
+                                        <strong>Reason:</strong> {{ $user->verificationRequest->rejection_reason }}
+                                    </p>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <button type="button" 
+                                    x-data 
+                                    x-on:click="$dispatch('open-verification-modal')" 
+                                    class="bg-white text-red-600 hover:bg-red-50 font-semibold px-4 py-2 rounded-lg shadow-sm transition-colors duration-200 flex items-center space-x-2">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>Resubmit Documents</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
 
@@ -75,6 +137,24 @@
                 </div>
 
             </div>
+
+            <!-- Quick Actions (Only for verified users) -->
+            @if(auth()->user()->status === 'verified')
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="{{ route('lecturer.references') }}" class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg shadow-md flex items-center justify-center transition-colors">
+                    <i class="fas fa-list-alt mr-2"></i>
+                    View All References
+                </a>
+                <a href="{{ route('notifications.index') }}" class="bg-green-600 hover:bg-green-700 text-white p-4 rounded-lg shadow-md flex items-center justify-center transition-colors">
+                    <i class="fas fa-bell mr-2"></i>
+                    View Notifications
+                </a>
+                <a href="{{ route('institution.attended.list') }}" class="bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-lg shadow-md flex items-center justify-center transition-colors">
+                    <i class="fas fa-university mr-2"></i>
+                    View Institutions
+                </a>
+            </div>
+            @endif
 
             <!-- Verification Modal -->
             <div x-data="{ open: false }" 
@@ -295,7 +375,7 @@
 
                             <div class="mt-3 flex space-x-3">
                                 <a href="{{ route('lecturer.reference.show', $request->id) }}" class="text-blue-500 hover:underline">View</a>
-                                @if($request->status !== 'pending')
+                                @if($request->status !== 'pending' && auth()->user()->status === 'verified')
                                     @if($request->dispute)
                                         <a href="{{ route('disputes.show', $request->dispute->id) }}" class="text-blue-500 hover:underline">
                                             Manage Dispute

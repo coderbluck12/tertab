@@ -44,6 +44,38 @@
                         </div>
                     </div>
                 </div>
+            @elseif($user->status === 'rejected')
+                <div class="bg-red-600 text-white p-4 rounded-lg shadow-lg mb-6 border-l-4 border-red-300">
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex-shrink-0">
+                                <svg class="w-6 h-6 text-red-100" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-lg">Identity Verification Rejected</h4>
+                                <p class="text-red-100 text-sm mt-1">Your identity verification was rejected. Please review the feedback and resubmit your documents to access all features.</p>
+                                @if($user->verificationRequest && $user->verificationRequest->rejection_reason)
+                                    <p class="text-red-100 text-xs mt-2 bg-red-500 bg-opacity-30 p-2 rounded">
+                                        <strong>Reason:</strong> {{ $user->verificationRequest->rejection_reason }}
+                                    </p>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <button type="button" 
+                                    x-data 
+                                    x-on:click="$dispatch('open-verification-modal')" 
+                                    class="bg-white text-red-600 hover:bg-red-50 font-semibold px-4 py-2 rounded-lg shadow-sm transition-colors duration-200 flex items-center space-x-2">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>Resubmit Documents</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             @endif
 
             <!-- Stats Cards -->
@@ -92,6 +124,24 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Quick Actions (Only for verified users) -->
+            @if(auth()->user()->status === 'verified')
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="{{ route('student.references') }}" class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg shadow-md flex items-center justify-center transition-colors">
+                    <i class="fas fa-list-alt mr-2"></i>
+                    View All References
+                </a>
+                <a href="{{ route('notifications.index') }}" class="bg-green-600 hover:bg-green-700 text-white p-4 rounded-lg shadow-md flex items-center justify-center transition-colors">
+                    <i class="fas fa-bell mr-2"></i>
+                    View Notifications
+                </a>
+                <a href="{{ route('institution.attended.list') }}" class="bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-lg shadow-md flex items-center justify-center transition-colors">
+                    <i class="fas fa-university mr-2"></i>
+                    View Institutions
+                </a>
+            </div>
+            @endif
 
             <!-- Alpine.js wrapper -->
             <div x-data="{ open: false, init() { console.log('Modal state on load:', this.open); } }">
@@ -175,7 +225,7 @@
             <div class="bg-white shadow-sm sm:rounded-lg p-6 mt-6">
                 <div class="flex justify-between mb-4">
                     <h3 class="text-lg font-semibold text-gray-800">Your Reference Requests</h3>
-                    @if($user->status !== 'pending')
+                    @if($user->status === 'verified')
                         @if($hasInstitution)
                             <a href="{{ route('student.reference') }}" class="bg-red-500 hover:text-red-600 hover:border hover:border-red-600 text-white px-4 py-2 rounded">
                                 Request for Reference
@@ -438,7 +488,7 @@
                                 @if(in_array($request->status, ['lecturer completed', 'lecturer email sent']))
                                     <a href="{{ route('student.reference.mark_completed', $request->id) }}" class="text-gray-800 hover:underline">Confirm Completed</a>
                                 @endif
-                                @if($request->status !== 'pending')
+                                @if($request->status !== 'pending' && auth()->user()->status === 'verified')
                                     @if($request->dispute)
                                         <a href="{{ route('disputes.show', $request->dispute->id) }}" class="text-blue-500 hover:underline">
                                             Manage Dispute
