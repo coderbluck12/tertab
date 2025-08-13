@@ -260,7 +260,7 @@
                 institutionSelect.innerHTML = '<option value="">Select Institution</option>';
                 
                 if (stateId) {
-                    fetch(`/tertab/public/institutions-by-state/${stateId}`)
+                    fetch(`/institutions-by-state/${stateId}`)
                         .then(response => response.json())
                         .then(institutions => {
                             institutions.forEach(institution => {
