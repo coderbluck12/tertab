@@ -136,7 +136,7 @@
                     <i class="fas fa-bell mr-2"></i>
                     View Notifications
                 </a>
-                <a href="{{ route('institution.attended.list') }}" class="bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-lg shadow-md flex items-center justify-center transition-colors">
+                <a href="{{ route('institution.attended.list') }}" class="bg-blue-600 hover:bg-purple-700 text-white p-4 rounded-lg shadow-md flex items-center justify-center transition-colors">
                     <i class="fas fa-university mr-2"></i>
                     View Institutions
                 </a>
