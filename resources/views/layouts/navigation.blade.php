@@ -65,6 +65,9 @@
                         <x-nav-link :href="route('admin.students')" :active="request()->routeIs('admin.students')" class="font-bold">
                             Students
                         </x-nav-link>
+                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users')" class="font-bold">
+                            Users
+                        </x-nav-link>
                     @endcan
                 </div>
             </div>

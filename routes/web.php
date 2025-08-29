@@ -132,6 +132,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Admin routes - These require both verification and admin role
 Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    
+    // User management routes
+    Route::resource('users', \App\Http\Controllers\Admin\UserController::class)->except(['show'])->names([
+        'index' => 'admin.users.index',
+        'create' => 'admin.users.create',
+        'store' => 'admin.users.store',
+        'edit' => 'admin.users.edit',
+        'update' => 'admin.users.update',
+        'destroy' => 'admin.users.destroy'
+    ]);
+    Route::get('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('admin.users.show');
+    
     Route::get('/references', [AdminController::class, 'allReferences'])->name('admin.references.all');
     Route::get('/reference/{id}', [AdminController::class, 'show'])->name('admin.reference.show');
     Route::patch('reference/{id}/approve', [ReferenceController::class, 'approve'])->name('admin.reference.approve');
@@ -147,9 +159,15 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(fu
     Route::delete('/institutions/{institution}', [AdminController::class, 'destroyInstitution'])->name('admin.institutions.destroy');
     
     // Course management
-    Route::get('/courses', [AdminController::class, 'courses'])->name('admin.courses.index');
-    Route::post('/courses', [AdminController::class, 'storeCourse'])->name('admin.courses.store');
-    Route::delete('/courses/{course}', [AdminController::class, 'destroyCourse'])->name('admin.courses.destroy');
+    Route::resource('courses', \App\Http\Controllers\Admin\CourseController::class)->except(['show'])->names([
+        'index' => 'admin.courses.index',
+        'create' => 'admin.courses.create',
+        'store' => 'admin.courses.store',
+        'edit' => 'admin.courses.edit',
+        'update' => 'admin.courses.update',
+        'destroy' => 'admin.courses.destroy',
+    ]);
+    Route::get('/courses/{course}', [\App\Http\Controllers\Admin\CourseController::class, 'show'])->name('admin.courses.show');
     
     Route::get('/students', [AdminController::class, 'students'])->name('admin.students');
     Route::get('/lecturers', [AdminController::class, 'lecturers'])->name('admin.lecturers');

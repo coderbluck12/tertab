@@ -54,7 +54,6 @@
                                             </div>
                                             <div class="ml-4">
                                                 <div class="text-sm font-medium text-gray-900">{{ $student->name }}</div>
-                                                <div class="text-sm text-gray-500">ID: {{ $student->id }}</div>
                                             </div>
                                         </div>
                                     </td>
