@@ -72,7 +72,7 @@
             <a href="#" class="text-gray-800 font-semibold hover:text-gray-800 hover:border hover:border-gray-800 hover:rounded-xl hover:py-1 hover:px-3 px-4 py-2 md:px-6">Home</a>
             <a href="#about" class="text-gray-800 font-semibold hover:text-gray-800 hover:border hover:border-gray-800 hover:rounded-xl hover:py-1 hover:px-3 px-4 py-2 md:px-6">About</a>
             <a href="#services" class="text-gray-800 font-semibold hover:text-gray-800 hover:border hover:border-gray-800 hover:rounded-xl hover:py-1 hover:px-3 px-4 py-2 md:px-6">Services</a>
-            <a href="#" class="text-gray-800 font-semibold hover:text-gray-800 hover:border hover:border-gray-800 hover:rounded-xl hover:py-1 hover:px-3 px-4 py-2 md:px-6">Contact</a>
+            <a href="{{ route('affiliate.index') }}" class="text-gray-800 font-semibold hover:text-gray-800 hover:border hover:border-gray-800 hover:rounded-xl hover:py-1 hover:px-3 px-4 py-2 md:px-6">Become Affiliate</a>
             <!-- Check if user is logged in -->
             @auth
                 <a href="{{ route('dashboard') }}" class="ml-4 bg-gray-800 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-800">Dashboard</a>
@@ -95,7 +95,7 @@
         <a href="#" class="block text-gray-800 font-semibold py-2">Home</a>
         <a href="#about" class="block text-gray-800 font-semibold py-2">About</a>
         <a href="#services" class="block text-gray-800 font-semibold py-2">Services</a>
-        <a href="#" class="block text-gray-800 font-semibold py-2">Contact</a>
+        <a href="{{ route('affiliate.index') }}" class="block text-gray-800 font-semibold py-2">Become Affiliate</a>
         <!-- Check if user is logged in -->
         @auth
             <a href="{{ route('dashboard') }}" class="block bg-gray-800 text-white px-4 py-2 rounded-full font-semibold text-center">Dashboard</a>

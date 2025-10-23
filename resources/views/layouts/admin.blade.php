@@ -71,6 +71,11 @@
                                     <i class="fas fa-university me-1"></i> Institutions
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.affiliates.*') ? 'active' : '' }}" href="{{ route('admin.affiliates.index') }}">
+                                    <i class="fas fa-users me-1"></i> Affiliates
+                                </a>
+                            </li>
                         </ul>
                         
                         <!-- Right Side Of Navbar -->

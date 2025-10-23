@@ -379,6 +379,9 @@ class ReferenceController extends Controller
         // Credit the lecturer's wallet
         $lecturerWallet->add($amount);
 
+        // Process referral commission (20% of the reference amount)
+        ReferralController::processReferenceCommission($reference->id, $amount);
+
         // Send email notification to lecturer about payment
         try {
             Mail::to($lecturer->email)->send(new \App\Mail\NotificationMail(

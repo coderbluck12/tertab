@@ -26,7 +26,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'phone',
         'address',
         'password',
-        'status'
+        'status',
+        'referral_code',
+        'referred_by'
     ];
 
     /**
@@ -100,5 +102,73 @@ class User extends Authenticatable implements MustVerifyEmail
     public function wallet()
     {
         return $this->hasOne(Wallet::class);
+    }
+
+    /**
+     * Get the user who referred this user
+     */
+    public function referrer()
+    {
+        return $this->belongsTo(User::class, 'referred_by');
+    }
+
+    /**
+     * Get all users referred by this user
+     */
+    public function referrals()
+    {
+        return $this->hasMany(User::class, 'referred_by');
+    }
+
+    /**
+     * Get all referral records where this user is the referrer
+     */
+    public function referralsMade()
+    {
+        return $this->hasMany(Referral::class, 'referrer_id');
+    }
+
+    /**
+     * Get the referral record where this user was referred
+     */
+    public function referralReceived()
+    {
+        return $this->hasOne(Referral::class, 'referred_user_id');
+    }
+
+    /**
+     * Generate a unique referral code for the user
+     */
+    public static function generateReferralCode()
+    {
+        do {
+            $code = strtoupper(substr(md5(uniqid(rand(), true)), 0, 8));
+        } while (self::where('referral_code', $code)->exists());
+
+        return $code;
+    }
+
+    /**
+     * Get referral link
+     */
+    public function getReferralLinkAttribute()
+    {
+        return url('/register?ref=' . $this->referral_code);
+    }
+
+    /**
+     * Get total referral earnings
+     */
+    public function getTotalReferralEarningsAttribute()
+    {
+        return $this->referralsMade()->sum('commission_amount');
+    }
+
+    /**
+     * Get pending referral earnings
+     */
+    public function getPendingReferralEarningsAttribute()
+    {
+        return $this->referralsMade()->where('commission_paid', false)->sum('commission_amount');
     }
 }

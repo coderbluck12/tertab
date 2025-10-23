@@ -21,11 +21,17 @@
                         <x-nav-link :href="route('wallet.show')" :active="request()->routeIs('wallet.show')" class="font-bold">
                             {{ __('Wallet') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('referrals.index')" :active="request()->routeIs('referrals.index')" class="font-bold">
+                            {{ __('Referrals') }}
+                        </x-nav-link>
                     @endcan
 
                     @can('provide-a-reference')
                         <x-nav-link :href="route('wallet.show')" :active="request()->routeIs('wallet.show')" class="font-bold">
                             {{ __('Wallet') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('referrals.index')" :active="request()->routeIs('referrals.index')" class="font-bold">
+                            {{ __('Referrals') }}
                         </x-nav-link>
                     @endcan
 
@@ -137,6 +143,18 @@
             @can('request-for-reference')
                 <x-responsive-nav-link :href="route('wallet.show')" :active="request()->routeIs('wallet.show')" class="font-bold">
                     {{ __('Wallet') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('referrals.index')" :active="request()->routeIs('referrals.index')" class="font-bold">
+                    {{ __('Referrals') }}
+                </x-responsive-nav-link>
+            @endcan
+            
+            @can('provide-a-reference')
+                <x-responsive-nav-link :href="route('wallet.show')" :active="request()->routeIs('wallet.show')" class="font-bold">
+                    {{ __('Wallet') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('referrals.index')" :active="request()->routeIs('referrals.index')" class="font-bold">
+                    {{ __('Referrals') }}
                 </x-responsive-nav-link>
             @endcan
         </div>

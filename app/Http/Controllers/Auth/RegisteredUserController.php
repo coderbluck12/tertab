@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\ReferralController;
 use App\Mail\NotificationMail;
 use App\Models\Document;
 use App\Models\State;
@@ -24,6 +25,13 @@ class RegisteredUserController extends Controller
     public function create(): View
     {
         $states = State::orderBy('name')->get();
+        
+        // Check for referral code in URL
+        $referralCode = request('ref');
+        if ($referralCode) {
+            session(['referral_code' => $referralCode]);
+        }
+        
         return view('auth.register', compact('states'));
     }
 
@@ -66,7 +74,14 @@ class RegisteredUserController extends Controller
             'phone' => $request->phone,
             'address' => $request->address,
             'password' => Hash::make($request->password),
+            'referral_code' => User::generateReferralCode(),
         ]);
+
+        // Process referral if exists
+        if (session('referral_code')) {
+            ReferralController::processReferral($user, session('referral_code'));
+            session()->forget('referral_code');
+        }
 
          // Mark registration as processed
         $request->session()->put('registration_processed', true);

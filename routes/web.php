@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AffiliateController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DisputeController;
 use App\Http\Controllers\DisputeDocumentController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\InstitutionController;
 use App\Http\Controllers\LecturerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReferenceController;
+use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\PlatfromSettingsController;
 use App\Http\Controllers\NotificationController;
@@ -22,6 +24,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Affiliate routes (public)
+Route::get('/affiliate', [AffiliateController::class, 'index'])->name('affiliate.index');
+Route::post('/affiliate/apply', [AffiliateController::class, 'store'])->name('affiliate.store');
+
+// Referral tracking route (public)
+Route::get('/ref/{code}', [ReferralController::class, 'trackClick'])->name('referral.track');
 
 // Verification routes - These should be accessible without verification
 Route::middleware(['auth'])->group(function () {
@@ -127,6 +136,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/wallet', [WalletController::class, 'show'])->name('wallet.show');
     Route::post('/wallet/fund', [WalletController::class, 'initializePayment'])->name('wallet.fund');
     Route::get('/payment/callback', [WalletController::class, 'handleCallback'])->name('payment.callback');
+
+    // Referral routes
+    Route::get('/referrals', [ReferralController::class, 'index'])->name('referrals.index');
+    Route::post('/referrals/generate', [ReferralController::class, 'generateCode'])->name('referral.generate');
+    Route::get('/referrals/statistics', [ReferralController::class, 'statistics'])->name('referrals.statistics');
 });
 
 // Admin routes - These require both verification and admin role
@@ -181,6 +195,13 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(fu
     Route::get('/verification-requests', [AdminController::class, 'verificationRequests'])->name('admin.verification.requests');
     Route::patch('/verification/{verificationRequest}/approve', [VerificationController::class, 'approve'])->name('admin.verification.approve');
     Route::patch('/verification/{verificationRequest}/reject', [VerificationController::class, 'reject'])->name('admin.verification.reject');
+    
+    // Affiliate management routes
+    Route::get('/affiliates', [AffiliateController::class, 'adminIndex'])->name('admin.affiliates.index');
+    Route::get('/affiliates/{id}', [AffiliateController::class, 'show'])->name('admin.affiliates.show');
+    Route::post('/affiliates/{id}/approve', [AffiliateController::class, 'approve'])->name('admin.affiliates.approve');
+    Route::post('/affiliates/{id}/reject', [AffiliateController::class, 'reject'])->name('admin.affiliates.reject');
+    Route::delete('/affiliates/{id}', [AffiliateController::class, 'destroy'])->name('admin.affiliates.destroy');
 });
 
 // API routes for dynamic data

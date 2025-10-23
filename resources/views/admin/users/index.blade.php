@@ -14,6 +14,17 @@
             </script>
         @endif
 
+        @if(session('error'))
+            <div id="error-message" class="bg-red-500 text-white p-4 rounded-md shadow-md mb-4">
+                {{ session('error') }}
+            </div>
+            <script>
+                setTimeout(() => {
+                    document.getElementById('error-message').style.display = 'none';
+                }, 5000);
+            </script>
+        @endif
+
         <div class="flex justify-between items-center">
             <h2 class="text-2xl font-semibold text-gray-900">User Management</h2>
             <a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
@@ -65,19 +76,27 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <div class="flex justify-end space-x-2">
-                                            <a href="{{ route('admin.users.edit', $user) }}" class="text-indigo-600 hover:text-indigo-900">
+                                        <div class="flex justify-end space-x-3">
+                                            <a href="{{ route('admin.users.edit', $user) }}" 
+                                               class="text-indigo-600 hover:text-indigo-900 transition-colors"
+                                               title="Edit User">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             @if($user->id !== auth()->id())
-                                                <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline">
+                                                <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline" 
+                                                      onsubmit="return confirmDelete('{{ $user->name }}', '{{ $user->email }}')">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900" 
-                                                            onclick="return confirm('Are you sure you want to delete this user?')">
+                                                    <button type="submit" 
+                                                            class="text-red-600 hover:text-red-900 transition-colors"
+                                                            title="Delete User">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
+                                            @else
+                                                <span class="text-gray-400" title="You cannot delete your own account">
+                                                    <i class="fas fa-trash"></i>
+                                                </span>
                                             @endif
                                         </div>
                                     </td>
@@ -101,4 +120,21 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+function confirmDelete(userName, userEmail) {
+    return confirm(
+        `⚠️ WARNING: You are about to delete this user!\n\n` +
+        `Name: ${userName}\n` +
+        `Email: ${userEmail}\n\n` +
+        `This action will:\n` +
+        `• Delete all user data\n` +
+        `• Remove all associated records\n` +
+        `• This action CANNOT be undone!\n\n` +
+        `Are you absolutely sure you want to proceed?`
+    );
+}
+</script>
+@endpush
 @endsection

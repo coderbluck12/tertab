@@ -21,6 +21,9 @@ class DashboardController extends Controller
             case 'student':
                 return redirect()->route('student.dashboard');
 
+            case 'affiliate':
+                return redirect()->route('referrals.index');
+
             default:
                 return redirect()->route('login');
         }

@@ -114,9 +114,29 @@ class UserController extends Controller
                 ->with('error', 'You cannot delete your own account.');
         }
 
-        $user->delete();
+        // Store user name for success message
+        $userName = $user->name;
 
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User deleted successfully');
+        try {
+            // Delete the user (cascade deletes will handle related records)
+            $user->delete();
+
+            return redirect()->route('admin.users.index')
+                ->with('success', "User '{$userName}' has been deleted successfully.");
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Failed to delete user. Please try again.');
+        }
+    }
+    
+    /**
+     * Display the specified user.
+     */
+    public function show(User $user)
+    {
+        // Load relationships for detailed view
+        $user->load(['referralsMade', 'referralReceived', 'wallet']);
+        
+        return view('admin.users.show', compact('user'));
     }
 }
