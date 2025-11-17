@@ -1,2 +1,25 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /profile/
+Disallow: /lecturer/
+Disallow: /student/
+Disallow: /disputes/
+Disallow: /notifications/
+Disallow: /wallet/
+Disallow: /referrals/
+Disallow: /verification/
+Disallow: /institution/
+Disallow: /reference/
+Disallow: /test-*
+Disallow: /debug-*
+
+# Allow public pages
+Allow: /
+Allow: /login
+Allow: /register
+Allow: /affiliate
+
+# Sitemap
+Sitemap: https://tertab.com/sitemap.xml

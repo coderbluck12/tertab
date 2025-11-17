@@ -1,3 +1,8 @@
+@section('title', 'Login - ' . config('app.name', 'Tertab') . ' | Access Your Account')
+@section('description', 'Login to your Tertab account to access verified academic and professional references from trusted lecturers. Secure login for students and professionals.')
+@section('keywords', 'tertab login, sign in, academic references login, professional references access, student login, lecturer login')
+@section('robots', 'index, follow')
+
 <x-guest-layout>
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />

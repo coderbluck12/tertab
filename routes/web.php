@@ -13,6 +13,7 @@ use App\Http\Controllers\LecturerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReferenceController;
 use App\Http\Controllers\ReferralController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\PlatfromSettingsController;
 use App\Http\Controllers\NotificationController;
@@ -24,6 +25,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// SEO routes (public)
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 // Affiliate routes (public)
 Route::get('/affiliate', [AffiliateController::class, 'index'])->name('affiliate.index');

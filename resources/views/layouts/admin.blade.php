@@ -5,7 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Tertab') }} - Admin Dashboard</title>
+        <!-- SEO Meta Tags -->
+        <title>@yield('title', config('app.name', 'Tertab') . ' - Admin Dashboard')</title>
+        <meta name="description" content="@yield('description', 'Admin dashboard for managing references, users, and platform settings.')">
+        <meta name="robots" content="@yield('robots', 'noindex, nofollow')">
+        <link rel="canonical" href="@yield('canonical', request()->url())">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

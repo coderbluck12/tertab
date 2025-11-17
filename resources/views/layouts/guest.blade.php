@@ -5,7 +5,25 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Tertab') }} - Best Reference Platform</title>
+        <!-- SEO Meta Tags -->
+        <title>@yield('title', config('app.name', 'Tertab') . ' - Best Reference Platform')</title>
+        <meta name="description" content="@yield('description', 'Join Tertab to get verified academic and professional references from trusted lecturers. Secure registration and login.')">
+        <meta name="keywords" content="@yield('keywords', 'tertab login, tertab register, academic references, professional references, verified lecturers')">
+        <meta name="author" content="{{ config('app.name', 'Tertab') }}">
+        <meta name="robots" content="@yield('robots', 'index, follow')">
+        <link rel="canonical" href="@yield('canonical', request()->url())">
+
+        <!-- Open Graph Meta Tags -->
+        <meta property="og:title" content="@yield('og_title', config('app.name', 'Tertab') . ' - Best Reference Platform')">
+        <meta property="og:description" content="@yield('og_description', 'Join Tertab to get verified academic and professional references from trusted lecturers.')">
+        <meta property="og:type" content="@yield('og_type', 'website')">
+        <meta property="og:url" content="@yield('og_url', request()->url())">
+        <meta property="og:image" content="@yield('og_image', asset('images/og-image.jpg'))">
+        <meta property="og:site_name" content="{{ config('app.name', 'Tertab') }}">
+
+        <!-- Additional SEO Meta Tags -->
+        <meta name="theme-color" content="#2563eb">
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

@@ -3,7 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Become an Affiliate - {{ config('app.name', 'Tertab') }}</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>Become an Affiliate - {{ config('app.name', 'Tertab') }} | Earn Commission with Reference Platform</title>
+    <meta name="description" content="Join Tertab's affiliate program and earn commission by promoting our verified academic reference platform. Great earning potential for educators and influencers.">
+    <meta name="keywords" content="tertab affiliate, affiliate program, earn commission, reference platform affiliate, academic affiliate program, education affiliate, lecturer affiliate">
+    <meta name="author" content="{{ config('app.name', 'Tertab') }}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url('/affiliate') }}">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Become an Affiliate - {{ config('app.name', 'Tertab') }}">
+    <meta property="og:description" content="Join Tertab's affiliate program and earn commission by promoting our verified academic reference platform.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url('/affiliate') }}">
+    <meta property="og:image" content="{{ asset('images/og-image.jpg') }}">
+    <meta property="og:site_name" content="{{ config('app.name', 'Tertab') }}">
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="theme-color" content="#2563eb">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>

@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+@section('title', 'Dashboard - ' . config('app.name', 'Tertab') . ' | Manage Your References')
+@section('description', 'Access your Tertab dashboard to manage academic and professional references, track requests, and communicate with verified lecturers.')
+@section('keywords', 'tertab dashboard, reference management, academic references dashboard, professional references portal')
+@section('robots', 'noindex, nofollow')
+
 @section('content')
 <div class="py-12">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">

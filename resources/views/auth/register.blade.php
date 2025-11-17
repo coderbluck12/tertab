@@ -1,3 +1,8 @@
+@section('title', 'Register - ' . config('app.name', 'Tertab') . ' | Join Our Reference Platform')
+@section('description', 'Create your Tertab account to get verified academic and professional references from trusted lecturers. Free registration for students and professionals.')
+@section('keywords', 'tertab register, sign up, create account, academic references registration, professional references signup, student registration, lecturer registration')
+@section('robots', 'index, follow')
+
 <x-guest-layout>
     <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data" id="registration-form">
         @csrf

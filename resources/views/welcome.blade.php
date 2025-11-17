@@ -3,7 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'Tertab') }} - Best Reference Platform</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>{{ config('app.name', 'Tertab') }} - Best Academic Reference Platform | Verified Lecturers</title>
+    <meta name="description" content="Get verified academic and professional references from trusted lecturers worldwide. Secure, fast, and reliable reference platform for students and professionals. Join thousands of satisfied users.">
+    <meta name="keywords" content="academic references, professional references, verified lecturers, student references, academic recommendation letters, university references, college references, tertab, reference platform, lecturer verification">
+    <meta name="author" content="{{ config('app.name', 'Tertab') }}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url('/') }}">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="{{ config('app.name', 'Tertab') }} - Best Academic Reference Platform">
+    <meta property="og:description" content="Get verified academic and professional references from trusted lecturers worldwide. Secure, fast, and reliable reference platform.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:image" content="{{ asset('images/og-image.jpg') }}">
+    <meta property="og:site_name" content="{{ config('app.name', 'Tertab') }}">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ config('app.name', 'Tertab') }} - Best Academic Reference Platform">
+    <meta name="twitter:description" content="Get verified academic and professional references from trusted lecturers worldwide.">
+    <meta name="twitter:image" content="{{ asset('images/og-image.jpg') }}">
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="msapplication-TileColor" content="#2563eb">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-touch-icon.png') }}">
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "{{ config('app.name', 'Tertab') }}",
+        "url": "{{ url('/') }}",
+        "description": "Get verified academic and professional references from trusted lecturers worldwide.",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "{{ url('/') }}/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        },
+        "sameAs": [
+            "https://facebook.com/tertab",
+            "https://twitter.com/tertab",
+            "https://linkedin.com/company/tertab"
+        ]
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "{{ config('app.name', 'Tertab') }}",
+        "url": "{{ url('/') }}",
+        "logo": "{{ asset('images/logoimg.png') }}",
+        "description": "Leading platform for verified academic and professional references from trusted lecturers.",
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer service",
+            "availableLanguage": "English"
+        },
+        "sameAs": [
+            "https://facebook.com/tertab",
+            "https://twitter.com/tertab",
+            "https://linkedin.com/company/tertab"
+        ]
+    }
+    </script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -65,8 +136,8 @@
 <nav class="bg-white shadow-lg">
     <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
         <div class="flex items-center">
-            <img src="{{ asset('images/logoimg.png') }}" class="w-10 md:w-14">
-            <img src="{{ asset('images/logotext.png') }}" class="w-16 md:w-24">
+            <img src="{{ asset('images/logoimg.png') }}" alt="{{ config('app.name', 'Tertab') }} Logo" class="w-10 md:w-14">
+            <img src="{{ asset('images/logotext.png') }}" alt="{{ config('app.name', 'Tertab') }} Text Logo" class="w-16 md:w-24">
         </div>
         <div class="hidden md:flex space-x-4">
             <a href="#" class="text-gray-800 font-semibold hover:text-gray-800 hover:border hover:border-gray-800 hover:rounded-xl hover:py-1 hover:px-3 px-4 py-2 md:px-6">Home</a>
