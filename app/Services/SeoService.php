@@ -15,7 +15,7 @@ class SeoService
     {
         $this->title = config('app.name', 'Tertab') . ' - Best Reference Platform';
         $this->description = 'Get verified academic and professional references from trusted lecturers. Secure, fast, and reliable reference platform for students and professionals.';
-        $this->keywords = 'academic references, professional references, verified lecturers, student references, academic recommendation letters, university references, college references';
+        $this->keywords = 'references, academic references, word refernces, professional references, verified lecturers, student references, academic recommendation letters, university references, college references';
         $this->ogImage = asset('images/og-image.jpg');
         $this->canonical = request()->url();
         $this->robots = 'index, follow';

@@ -8,7 +8,7 @@
         <!-- SEO Meta Tags -->
         <title>@yield('title', config('app.name', 'Tertab') . ' - Best Reference Platform')</title>
         <meta name="description" content="@yield('description', 'Get verified academic and professional references from trusted lecturers. Secure, fast, and reliable reference platform for students and professionals.')">
-        <meta name="keywords" content="@yield('keywords', 'academic references, professional references, verified lecturers, student references, academic recommendation letters, university references, college references')">
+        <meta name="keywords" content="@yield('keywords', 'references, academic references, word references, professional references, verified lecturers, student references, academic recommendation letters, university references, college references')">
         <meta name="author" content="{{ config('app.name', 'Tertab') }}">
         <meta name="robots" content="@yield('robots', 'index, follow')">
         <link rel="canonical" href="@yield('canonical', request()->url())">

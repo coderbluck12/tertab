@@ -30,7 +30,7 @@ class AffiliateController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:affiliate_applications,email|unique:users,email',
             'phone' => 'nullable|string|max:20',
-            'reason' => 'required|string|min:50',
+            'reason' => 'nullable|string|min:50',
         ]);
 
         if ($validator->fails()) {

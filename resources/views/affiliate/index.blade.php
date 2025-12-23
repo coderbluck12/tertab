@@ -127,8 +127,8 @@
             </div>
 
             <div class="mb-6">
-                <label for="reason" class="block text-gray-700 font-semibold mb-2">Why do you want to become an affiliate? *</label>
-                <textarea id="reason" name="reason" rows="5" required
+                <label for="reason" class="block text-gray-700 font-semibold mb-2">Why do you want to become an affiliate?</label>
+                <textarea id="reason" name="reason" rows="5"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Tell us about your experience, audience, and how you plan to promote our platform (minimum 50 characters)">{{ old('reason') }}</textarea>
                 <p class="text-sm text-gray-500 mt-1">Minimum 50 characters</p>
